@@ -5,9 +5,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 
 import { useAdminLogin } from "@/hooks/admin/useAdminLogin";
 import { loginSchema, LoginSchema } from "@/lib/Schemas/Loginschema";
+import { useLogin } from "@/hooks/useLogin";
 
 export default function LoginPage() {
-  const { mutate: login, isPending } = useAdminLogin();
+  // const { mutate: login, isPending } = useAdminLogin();
+  const { mutate: login, isPending } = useLogin();
 
   const {
     register,
