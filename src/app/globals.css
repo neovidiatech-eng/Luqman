@@ -1,0 +1,180 @@
+@import url("https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap");
+@import "tailwindcss";
+@source "../components";
+@source "../app";
+@source "../pages";
+@source "../lib";
+@theme {
+  /* من website — الأكمل */
+  --color-primary: #1b2a4a;
+  --color-secondary: #c9a84c;
+  --color-accent: #e8d5a3;
+  --color-bg: #f8f6f1;
+  --color-app-bg: #f8f6f1;
+  --color-surface: #ffffff;
+  --color-text: #1b2a4a;
+  --color-text-main: #1b2a4a;
+  --color-text-muted: #6b7280;
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-error: #ef4444;
+  --color-border: #e5e7eb;
+  --color-border-subtle: #e5e7eb;
+  --color-muted: #6b7280;
+  --color-sidebar-bg: #1b2a4a;
+  --color-sidebar-text: #f8f6f1;
+  --color-whatsapp: #25d366;
+
+  --font-cairo: "Cairo", sans-serif;
+
+  /* shadows من website */
+  --shadow-sleek:
+    0 4px 6px -1px rgba(27, 42, 74, 0.05), 0 2px 4px -1px rgba(27, 42, 74, 0.03);
+  --shadow-sleek-lg:
+    0 10px 15px -3px rgba(27, 42, 74, 0.07),
+    0 4px 6px -2px rgba(27, 42, 74, 0.04);
+}
+
+:root {
+  --primary: #1b2a4a;
+  --secondary: #c9a84c;
+  --accent: #e8d5a3;
+  --bg: #f8f6f1;
+  --surface: #ffffff;
+  --text: #1b2a4a;
+  --text-muted: #6b7280;
+  --success: #10b981;
+  --warning: #f59e0b;
+  --error: #ef4444;
+  --border: #e5e7eb;
+  --sidebar-bg: #1b2a4a;
+  --sidebar-text: #f8f6f1;
+  --whatsapp: #25d366;
+}
+
+/* Global reset removed to rely on Tailwind preflight */
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--text);
+  font-family:
+    "Cairo",
+    system-ui,
+    -apple-system,
+    sans-serif;
+  direction: rtl;
+}
+
+/* Scrollbar — من admin */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Dashboard transition — من admin */
+.transition-dashboard {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* markdown — من developer */
+.markdown-body {
+  direction: rtl;
+}
+
+/* Components — من website */
+@layer components {
+  .container {
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+    max-width: 80rem;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.75rem;
+    font-weight: 700;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    box-shadow: var(--shadow-sleek);
+  }
+  .btn-primary {
+    background: var(--primary);
+    color: white;
+  }
+  .btn-primary:hover {
+    opacity: 0.9;
+    box-shadow: var(--shadow-sleek-lg);
+  }
+
+  .btn-secondary {
+    background: var(--secondary);
+    color: var(--primary);
+  }
+  .btn-secondary:hover {
+    background: var(--accent);
+    box-shadow: var(--shadow-sleek-lg);
+  }
+
+  .btn-outline {
+    border: 1px solid var(--primary);
+    color: var(--primary);
+  }
+  .btn-outline:hover {
+    background: var(--primary);
+    color: white;
+  }
+
+  .card-sleek {
+    background-color: white;
+    border-radius: 1rem;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    box-shadow: var(--shadow-sleek);
+    border: 1px solid var(--border);
+  }
+  .card-sleek:hover {
+    box-shadow: var(--shadow-sleek-lg);
+    border-color: rgba(201, 168, 76, 0.3);
+  }
+}
+@theme {
+  --font-cairo: "Cairo", sans-serif;
+
+  --color-luxury-navy: #1b2a4a;
+  --color-luxury-navy-light: #2a4376;
+  --color-luxury-gold: #c9a84c;
+  --color-luxury-gold-light: #dfca8d;
+
+  --color-glass: rgba(255, 255, 255, 0.04);
+  --color-glass-border: rgba(255, 255, 255, 0.1);
+
+  --shadow-luxury: 0 40px 100px rgba(0, 0, 0, 0.3);
+  --shadow-glass: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+}
