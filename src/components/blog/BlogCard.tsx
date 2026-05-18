@@ -12,12 +12,13 @@ interface BlogCardProps {
 }
 
 export default function BlogCard({ post }: BlogCardProps) {
+  console.log("=== Blog Post Data from Backend ===", post);
   return (
     <div className="bg-white rounded-2xl overflow-hidden border border-border hover:shadow-2xl transition-all duration-500 group flex flex-col">
       <div className="relative h-[220px] overflow-hidden">
         <Image 
-          src={post.image} 
-          alt={post.title}
+          src={post.coverImage || post.image || '/placeholder.svg'} 
+          alt={post.title || 'صورة المقالة'}
           fill
           className="object-cover transition-transform duration-700 group-hover:scale-110"
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
@@ -37,7 +38,7 @@ export default function BlogCard({ post }: BlogCardProps) {
           </div>
           <div className="flex items-center gap-1">
             <Calendar className="w-3.5 h-3.5 text-secondary" />
-            <span>{formatDate(post.publishedAt)}</span>
+            <span>{(post.publishedAt || post.createdAt) ? formatDate(post.publishedAt || post.createdAt!) : 'غير محدد'}</span>
           </div>
           <div className="flex items-center gap-1">
             <Clock className="w-3.5 h-3.5 text-secondary" />

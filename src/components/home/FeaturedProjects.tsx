@@ -3,10 +3,23 @@ import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react'
 import SectionTitle from '@/components/shared/SectionTitle'
 import ProjectCard from '@/components/projects/ProjectCard'
-import { mockProjects } from '@/lib/mock-data'
+import { useHomeData } from '@/hooks/public/useProperties'
 
 export default function FeaturedProjects() {
-  const projects = mockProjects.slice(0, 3)
+  const { data, isLoading, error } = useHomeData()
+  const projects = data?.data?.featuredProjects || []
+
+  if (isLoading) {
+    return <div className="text-center py-24 font-bold text-primary">جاري التحميل...</div>
+  }
+
+  if (error) {
+    return <div className="text-center py-24 font-bold text-red-500">حدث خطأ أثناء تحميل المشاريع</div>
+  }
+
+  if (!data) {
+    return null
+  }
 
   return (
     <section className="py-24 bg-bg">
@@ -25,11 +38,17 @@ export default function FeaturedProjects() {
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {projects.map(project => (
-            <ProjectCard key={project.id} project={project} />
-          ))}
-        </div>
+        {projects.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {projects.slice(0, 3).map((project: any) => (
+              <ProjectCard key={project.id} project={project} />
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-12 bg-white rounded-2xl border border-dashed border-gray-200">
+            <h3 className="text-xl font-bold text-gray-500">لا توجد مشاريع لعرضها في الوقت الحالي</h3>
+          </div>
+        )}
 
         <div className="mt-12 text-center md:hidden">
           <Link 

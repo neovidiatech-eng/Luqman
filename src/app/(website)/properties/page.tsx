@@ -1,48 +1,53 @@
 "use client";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { LayoutGrid, List as ListIcon, SlidersHorizontal } from "lucide-react";
-import { mockProperties } from "@/lib/mock-data";
+import { useGetProperties } from "@/hooks/public/useProperties";
 import PropertyCard from "@/components/properties/PropertyCard";
 import PropertyFilters from "@/components/properties/PropertyFilters";
 import Breadcrumb from "@/components/shared/Breadcrumb";
 import { motion, AnimatePresence } from "motion/react";
 
-export default function Properties() {
+// Wrap the main content in a component to use useSearchParams safely
+function PropertiesContent() {
+  const searchParams = useSearchParams();
+  
   const [view, setView] = useState<"grid" | "list">("grid");
   const [showMobileFilters, setShowMobileFilters] = useState(false);
   const [filters, setFilters] = useState({
-    city: "",
-    types: [] as string[],
+    city: searchParams?.get("city") || "",
+    types: searchParams?.get("type") ? [searchParams?.get("type") as string] : [] as string[],
     district: "",
     minPrice: "",
     maxPrice: "",
     bedrooms: "",
   });
 
-  // Filter logic
-  const filteredProperties = useMemo(() => {
-    return mockProperties.filter((property) => {
-      if (filters.city && property.city !== filters.city) return false;
-      if (filters.types.length > 0 && !filters.types.includes(property.type))
-        return false;
-      if (filters.district && !property.district.includes(filters.district))
-        return false;
-      if (filters.minPrice && property.price < Number(filters.minPrice))
-        return false;
-      if (filters.maxPrice && property.price > Number(filters.maxPrice))
-        return false;
-      if (filters.bedrooms) {
-        const bedrooms = property.bedrooms || 0;
-        if (
-          filters.bedrooms === "5+"
-            ? bedrooms < 5
-            : bedrooms.toString() !== filters.bedrooms
-        )
-          return false;
-      }
-      return true;
-    });
+  // Also sync when searchParams change
+  useEffect(() => {
+    setFilters((prev) => ({
+      ...prev,
+      city: searchParams?.get("city") || prev.city,
+      types: searchParams?.get("type") ? [searchParams?.get("type") as string] : prev.types,
+    }));
+  }, [searchParams]);
+
+  // Map frontend filters to API expected formats
+  const apiFilters = useMemo(() => {
+    return {
+      city: filters.city || undefined,
+      type: filters.types.length > 0 ? filters.types.join(',') : undefined,
+      district: filters.district || undefined,
+      minPrice: filters.minPrice ? Number(filters.minPrice) : undefined,
+      maxPrice: filters.maxPrice ? Number(filters.maxPrice) : undefined,
+      bedrooms: filters.bedrooms && filters.bedrooms !== "5+" ? Number(filters.bedrooms) : undefined,
+      // If "5+", we might need a different API approach, but for now we'll map as best as possible
+    };
   }, [filters]);
+
+  // Fetch from Backend
+  const { data, isLoading, error } = useGetProperties(apiFilters);
+  const filteredProperties = data?.data?.properties || [];
 
   const clearFilters = () => {
     setFilters({
@@ -66,7 +71,7 @@ export default function Properties() {
               استكشف العقارات
             </h1>
             <p className="text-text-muted">
-              تم العثور على {filteredProperties.length} عقاراً يطابق بحثك
+              {isLoading ? "جاري البحث..." : `تم العثور على ${filteredProperties.length} عقاراً يطابق بحثك`}
             </p>
           </div>
 
@@ -110,7 +115,15 @@ export default function Properties() {
 
           {/* Results Grid */}
           <div className="lg:w-3/4">
-            {filteredProperties.length > 0 ? (
+            {isLoading ? (
+              <div className="flex justify-center items-center h-64">
+                <p className="text-primary font-bold text-xl">جاري تحميل العقارات...</p>
+              </div>
+            ) : error ? (
+              <div className="flex justify-center items-center h-64">
+                <p className="text-red-500 font-bold text-xl">حدث خطأ أثناء تحميل العقارات</p>
+              </div>
+            ) : filteredProperties.length > 0 ? (
               <div
                 className={`grid gap-8 ${view === "grid" ? "grid-cols-1 sm:grid-cols-2 xl:grid-cols-3" : "grid-cols-1"}`}
               >
@@ -184,5 +197,15 @@ export default function Properties() {
         )}
       </AnimatePresence>
     </main>
+  );
+}
+
+import { Suspense } from "react";
+
+export default function Properties() {
+  return (
+    <Suspense fallback={<div className="min-h-screen pt-32 pb-20 flex justify-center items-center"><p className="text-primary font-bold text-xl">جاري التحميل...</p></div>}>
+      <PropertiesContent />
+    </Suspense>
   );
 }

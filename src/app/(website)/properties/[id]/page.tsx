@@ -15,7 +15,8 @@ import {
   LayoutGrid,
   CheckCircle2,
 } from "lucide-react";
-import { mockProperties, companyInfo } from "@/lib/mock-data";
+import { companyInfo } from "@/lib/mock-data";
+import { useGetProperty } from "@/hooks/public/useProperties";
 import PropertyGallery from "@/components/properties/PropertyGallery";
 import ContactForm from "@/components/shared/ContactForm";
 import MapPlaceholder from "@/components/shared/MapPlaceholder";
@@ -26,9 +27,22 @@ import { useState } from "react";
 export default function PropertyDetail() {
   const params = useParams();
   const id = params?.id as string;
-  const property = mockProperties.find((p) => p.id === id);
   const [copied, setCopied] = useState(false);
-  if (!property) {
+
+  // Fetching single property from Backend
+  const { data: propertyResponse, isLoading, error } = useGetProperty(id);
+  // Backend might return the property inside data.property or just data
+  const property = (propertyResponse?.data as any)?.property || propertyResponse?.data;
+
+  if (isLoading) {
+    return (
+      <div className="pt-40 pb-20 text-center container">
+        <h1 className="text-2xl font-bold text-primary">جاري تحميل العقار...</h1>
+      </div>
+    );
+  }
+
+  if (error || !property) {
     return (
       <div className="pt-40 pb-20 text-center container">
         <h1 className="text-4xl font-black mb-4">العقار غير موجود</h1>
@@ -76,7 +90,7 @@ export default function PropertyDetail() {
         <div className="flex flex-col lg:flex-row gap-12">
           {/* Main Content */}
           <div className="lg:w-2/3">
-            <PropertyGallery images={property.images} />
+            <PropertyGallery images={property.images} videoUrl={property.videoUrl} />
 
             <div className="mt-12 bg-white p-8 md:p-12 rounded-3xl border border-border shadow-sm">
               <div className="flex flex-col md:flex-row justify-between md:items-center gap-6 mb-8 pb-8 border-b border-gray-100">
@@ -180,7 +194,7 @@ export default function PropertyDetail() {
                   المزايا والخصائص
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {property.features.map((feature, i) => (
+                  {property.features?.map((feature: string, i: number) => (
                     <div
                       key={i}
                       className="flex items-center gap-3 bg-bg/50 p-4 rounded-xl"

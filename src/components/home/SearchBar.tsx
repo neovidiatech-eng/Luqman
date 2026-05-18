@@ -2,13 +2,19 @@
 import { useState } from 'react'
 import { Search, MapPin, Building2, ArrowLeftRight } from 'lucide-react'
 import { useRouter } from 'next/navigation';
-import { saudiCities, propertyTypes } from '@/lib/mock-data'
+import { propertyTypes } from '@/lib/mock-data'
+import { useGetCities } from '@/hooks/public/useSettings'
 
 export default function SearchBar() {
   const [city, setCity] = useState('')
   const [type, setType] = useState('')
   const [purpose, setPurpose] = useState('للبيع')
   const router = useRouter()
+  
+  const { data: citiesData } = useGetCities()
+  const citiesList = Array.isArray(citiesData?.data?.cities) 
+    ? citiesData.data.cities
+    : []
 
   const handleSearch = () => {
     const params = new URLSearchParams()
@@ -31,7 +37,7 @@ export default function SearchBar() {
             onChange={(e) => setCity(e.target.value)}
           >
             <option value="">كل المدن</option>
-            {saudiCities.map(c => <option key={c} value={c}>{c}</option>)}
+            {citiesList.map((c: string) => <option key={c} value={c}>{c}</option>)}
           </select>
         </div>
       </div>

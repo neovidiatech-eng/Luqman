@@ -7,24 +7,29 @@ import {
   Calendar,
   Clock,
   Share2,
-  MessageCircle,
   Link as LinkIcon,
   ChevronLeft,
 } from "lucide-react";
-import { mockBlogPosts } from "@/lib/mock-data";
 import BlogCard from "@/components/blog/BlogCard";
 import Breadcrumb from "@/components/shared/Breadcrumb";
 import { formatDate } from "@/lib/utils";
 import { useState } from "react";
+import { useBlog, useBlogs } from "@/hooks/public/useBlogs";
 
 export default function BlogPost() {
   const params = useParams();
   const slug = params?.slug as string;
-  const post = mockBlogPosts.find((p) => p.slug === slug);
-  const relatedPosts = mockBlogPosts
-    .filter((p) => p.id !== post?.id)
-    .slice(0, 3);
   const [copied, setCopied] = useState(false);
+
+  // Fetching single post from Backend
+  const { data: blogResponse, isLoading, error } = useBlog(slug);
+  const post = (blogResponse?.data as any)?.post || blogResponse?.data;
+
+  // Fetching all posts for related section
+  const { data: allBlogsResponse } = useBlogs();
+  const relatedPosts = allBlogsResponse?.data?.posts
+    ?.filter((p) => p.id !== post?.id)
+    .slice(0, 3) || [];
 
   const copyLink = async () => {
     try {
@@ -37,10 +42,19 @@ export default function BlogPost() {
   };
 
   const shareOnWhatsApp = () => {
-    const text = `شوف العقار ده: ${window.location.href}`;
+    const text = `شوف المقال ده: ${window.location.href}`;
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank");
   };
-  if (!post) {
+
+  if (isLoading) {
+    return (
+      <div className="pt-40 pb-20 text-center container">
+        <h1 className="text-2xl font-bold text-primary">جاري تحميل المقال...</h1>
+      </div>
+    );
+  }
+
+  if (error || !post) {
     return (
       <div className="pt-40 pb-20 text-center container">
         <h1 className="text-4xl font-black mb-4">المقال غير موجود</h1>
@@ -62,7 +76,7 @@ export default function BlogPost() {
           {/* Hero Image */}
           <div className="relative h-[400px] md:h-[600px] overflow-hidden">
             <Image
-              src={post.image}
+              src={post.coverImage || post.image || '/placeholder.svg'}
               alt={post.title}
               fill
               className="object-cover"
@@ -86,11 +100,11 @@ export default function BlogPost() {
                   </div>
                   <div className="flex items-center gap-2">
                     <Calendar className="w-5 h-5 text-secondary" />
-                    <span>{formatDate(post.publishedAt)}</span>
+                    <span>{(post.publishedAt || post.createdAt) ? formatDate(post.publishedAt || post.createdAt!) : 'غير محدد'}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Clock className="w-5 h-5 text-secondary" />
-                    <span>{post.readingTime} دقائق قراءة</span>
+                    <span>{post.readingTime || 5} دقائق قراءة</span>
                   </div>
                 </div>
               </div>
@@ -100,15 +114,6 @@ export default function BlogPost() {
           <div className="p-8 md:p-16">
             {/* Share & Actions */}
             <div className="flex items-center justify-between pb-8 mb-12 border-b border-gray-100">
-              {/* <div className="flex items-center gap-4">
-                <p className="font-bold text-primary">شارك المقال:</p>
-                <button className="w-10 h-10 rounded-full bg-green-50 text-whatsapp flex items-center justify-center hover:bg-whatsapp hover:text-white transition-all">
-                  <Share2 className="w-5 h-5" />
-                </button>
-                <button className="w-10 h-10 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center hover:bg-blue-600 hover:text-white transition-all">
-                  <LinkIcon className="w-5 h-5" />
-                </button>
-              </div> */}
               <div className="flex items-center gap-4 relative">
                 <p className="font-bold text-primary">شارك المقال:</p>
 
@@ -147,18 +152,9 @@ export default function BlogPost() {
 
             {/* Content */}
             <div className="max-w-4xl mx-auto">
-              <div className="prose prose-xl prose-primary mx-auto leading-[2] text-text-muted text-lg text-justify space-y-8">
-                {post.content.split("\n").map((para, i) => (
-                  <p
-                    key={i}
-                    className={para.includes("...") ? "font-serif italic" : ""}
-                  >
-                    {para.trim()}
-                  </p>
-                ))}
-              </div>
+              <div className="prose prose-xl prose-primary mx-auto leading-[2] text-text-muted text-lg text-justify space-y-8" dangerouslySetInnerHTML={{ __html: post.content }} />
 
-              {/* Newsletter or similar CTA can go here */}
+              {/* Newsletter CTA */}
               <div className="mt-20 p-12 bg-bg rounded-[2.5rem] border border-border flex flex-col md:flex-row items-center justify-between gap-8">
                 <div>
                   <h4 className="text-2xl font-black text-primary mb-2">
@@ -184,19 +180,21 @@ export default function BlogPost() {
         </article>
 
         {/* Related Posts */}
-        <section>
-          <div className="flex items-center justify-between mb-12">
-            <h3 className="text-3xl font-black text-primary">مقالات ذات صلة</h3>
-            <Link href="/blog" className="btn btn-outline py-2.5">
-              عرض الكل
-            </Link>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {relatedPosts.map((post) => (
-              <BlogCard key={post.id} post={post} />
-            ))}
-          </div>
-        </section>
+        {relatedPosts.length > 0 && (
+          <section>
+            <div className="flex items-center justify-between mb-12">
+              <h3 className="text-3xl font-black text-primary">مقالات ذات صلة</h3>
+              <Link href="/blog" className="btn btn-outline py-2.5">
+                عرض الكل
+              </Link>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {relatedPosts.map((post) => (
+                <BlogCard key={post.id} post={post} />
+              ))}
+            </div>
+          </section>
+        )}
       </div>
     </main>
   );

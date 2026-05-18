@@ -19,13 +19,16 @@ export default function ProjectCard({ project }: ProjectCardProps) {
   }
 
   const status = statusLabels[project.status]
+  
+  const defaultImage = "https://images.unsplash.com/photo-1541881430813-14e41ce99fb0?q=80&w=800&auto=format&fit=crop"
+  const imageSrc = project.images && project.images.length > 0 && project.images[0] !== "" ? project.images[0] : defaultImage
 
   return (
     <div className="bg-white rounded-2xl overflow-hidden border border-border hover:shadow-2xl transition-all duration-500 group flex flex-col">
       <div className="relative h-[250px] overflow-hidden">
         <Image 
-          src={project.images[0]} 
-          alt={project.name}
+          src={imageSrc} 
+          alt={project.name || 'Project'}
           fill
           className="object-cover transition-transform duration-700 group-hover:scale-110"
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
