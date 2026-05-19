@@ -5,7 +5,7 @@ import {
   MapPin, Calendar, Building2, TrendingUp, 
   Download, CheckCircle2, ChevronDown
 } from 'lucide-react'
-import { mockProjects } from '@/lib/mock-data'
+import { useGetProject } from "@/hooks/public/useProjects";
 import PropertyGallery from '@/components/properties/PropertyGallery'
 import ContactForm from '@/components/shared/ContactForm'
 import MapPlaceholder from '@/components/shared/MapPlaceholder'
@@ -16,9 +16,19 @@ import { formatPrice } from '@/lib/utils'
 export default function ProjectDetail() {
   const params = useParams()
   const id = params?.id as string
-  const project = mockProjects.find(p => p.id === id)
+  
+  const { data: projectResponse, isLoading, error } = useGetProject(id);
+  const project = projectResponse?.data;
 
-  if (!project) {
+  if (isLoading) {
+    return (
+      <div className="pt-40 pb-20 text-center container">
+        <h1 className="text-2xl font-bold text-primary animate-pulse">جاري تحميل تفاصيل المشروع...</h1>
+      </div>
+    );
+  }
+
+  if (error || !project) {
     return (
       <div className="pt-40 pb-20 text-center container">
         <h1 className="text-4xl font-black mb-4">المشروع غير موجود</h1>
@@ -58,7 +68,7 @@ export default function ProjectDetail() {
             </div>
           </div>
 
-          <PropertyGallery images={project.images} />
+          <PropertyGallery images={project.images} videoUrl={project.videoUrl || undefined} />
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 mt-16">
             <div className="lg:col-span-2 space-y-16">
@@ -67,7 +77,7 @@ export default function ProjectDetail() {
                 {[
                   { label: 'الوحدات الكلية', value: project.totalUnits, icon: Building2 },
                   { label: 'الوحدات المتاحة', value: project.availableUnits, icon: CheckCircle2 },
-                  { label: 'تاريخ التسليم', value: project.deliveryDate.split('-').reverse().join('/'), icon: Calendar },
+                  { label: 'تاريخ التسليم', value: project.deliveryDate ? project.deliveryDate.substring(0, 10).split('-').reverse().join('/') : "غير محدد", icon: Calendar },
                   { label: 'المطور', value: project.developerName, icon: TrendingUp },
                 ].map((stat, i) => (
                   <div key={i} className="text-center md:text-right">

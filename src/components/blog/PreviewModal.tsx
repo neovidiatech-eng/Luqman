@@ -54,7 +54,7 @@ export function PreviewModal({
           {/* Cover Image */}
           <div className="relative w-full h-52">
             <Image
-              src={post.image}
+              src={post.coverImage || post.image || '/placeholder.svg'}
               alt={post.title}
               fill
               className="object-cover"
@@ -87,7 +87,7 @@ export function PreviewModal({
               </span>
               <span className="flex items-center gap-1.5">
                 <Calendar size={14} />
-                {formatDate(post.publishedAt)}
+                {(post.publishedAt || post.createdAt) ? formatDate(post.publishedAt || post.createdAt!) : 'غير محدد'}
               </span>
               <span className="flex items-center gap-1.5">
                 <Clock size={14} />

@@ -1,6 +1,7 @@
 'use client'
 import { Search, MapPin, X } from 'lucide-react'
-import { propertyTypes, saudiCities } from '@/lib/mock-data'
+import { propertyTypes } from '@/lib/mock-data'
+import { useGetCities } from '@/hooks/public/useSettings'
 
 interface PropertyFiltersProps {
   filters: any
@@ -9,6 +10,13 @@ interface PropertyFiltersProps {
 }
 
 export default function PropertyFilters({ filters, setFilters, onClear }: PropertyFiltersProps) {
+  const { data: citiesData } = useGetCities()
+  
+  // The API returns data.data.cities as an array of strings
+  const citiesList = Array.isArray(citiesData?.data?.cities) 
+    ? citiesData.data.cities
+    : []
+
   const toggleType = (value: string) => {
     const currentTypes = filters.types || []
     const nextTypes = currentTypes.includes(value)
@@ -55,7 +63,7 @@ export default function PropertyFilters({ filters, setFilters, onClear }: Proper
             onChange={(e) => setFilters({ ...filters, city: e.target.value })}
           >
             <option value="">كل المدن</option>
-            {saudiCities.map(city => (
+            {citiesList.map((city: string) => (
               <option key={city} value={city}>{city}</option>
             ))}
           </select>

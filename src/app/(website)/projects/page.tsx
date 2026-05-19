@@ -7,27 +7,73 @@ import {
   SlidersHorizontal,
   Filter,
 } from "lucide-react";
-import { mockProjects, saudiCities } from "@/lib/mock-data";
+// Dynamic cities are extracted from active projects
 import ProjectCard from "@/components/projects/ProjectCard";
 import Breadcrumb from "@/components/shared/Breadcrumb";
 import { motion } from "motion/react";
+import {useProjects} from "@/hooks/public/useProjects";
+
+const normalizeArabic = (str: string) => {
+  return str
+    .replace(/[أإآ]/g, "ا")
+    .replace(/ة/g, "ه")
+    .replace(/ى/g, "ي")
+    .toLowerCase()
+    .trim();
+};
 
 export default function Projects() {
-  const [filters, setFilters] = useState({
+  const { data, isLoading, error } = useProjects();
+  
+  // Temporary search inputs (updates as user types/selects)
+  const [searchInputs, setSearchInputs] = useState({
     city: "",
     status: "",
     search: "",
   });
 
+  // Active filters (only updates when clicking the "بحث" button)
+  const [activeFilters, setActiveFilters] = useState({
+    city: "",
+    status: "",
+    search: "",
+  });
+  
+  const projects = data?.data?.projects || [];
+
+  // Dynamically extract unique cities from the active projects list
+  const cities = useMemo(() => {
+    return Array.from(new Set(projects.map((p) => p.city).filter(Boolean)));
+  }, [projects]);
+
   const filteredProjects = useMemo(() => {
-    return mockProjects.filter((project) => {
-      if (filters.city && project.city !== filters.city) return false;
-      if (filters.status && project.status !== filters.status) return false;
-      if (filters.search && !project.name.includes(filters.search))
-        return false;
+    return projects.filter((project) => {
+      if (activeFilters.city && project.city !== activeFilters.city) return false;
+      if (activeFilters.status && project.status !== activeFilters.status) return false;
+      if (activeFilters.search) {
+        const normalizedSearch = normalizeArabic(activeFilters.search);
+        const normalizedName = normalizeArabic(project.name);
+        if (!normalizedName.includes(normalizedSearch)) return false;
+      }
       return true;
     });
-  }, [filters]);
+  }, [activeFilters, projects]);
+
+  if (isLoading) {
+    return (
+      <div className="pt-40 pb-20 text-center container">
+        <h1 className="text-2xl font-bold text-primary animate-pulse">جاري تحميل المشاريع...</h1>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="pt-40 pb-20 text-center container">
+        <h1 className="text-2xl font-bold text-red-500">حدث خطأ أثناء تحميل المشاريع</h1>
+      </div>
+    );
+  }
 
   return (
     <main className="pt-32 pb-20 bg-bg min-h-screen">
@@ -57,9 +103,9 @@ export default function Projects() {
                 type="text"
                 placeholder="اسم المشروع..."
                 className="w-full pr-10 pl-4 py-3 bg-bg rounded-xl border border-transparent focus:border-secondary transition-all outline-none"
-                value={filters.search}
+                value={searchInputs.search}
                 onChange={(e) =>
-                  setFilters({ ...filters, search: e.target.value })
+                  setSearchInputs({ ...searchInputs, search: e.target.value })
                 }
               />
             </div>
@@ -71,11 +117,11 @@ export default function Projects() {
             </label>
             <select
               className="w-full px-4 py-3 bg-bg rounded-xl border border-transparent focus:border-secondary transition-all outline-none appearance-none cursor-pointer"
-              value={filters.city}
-              onChange={(e) => setFilters({ ...filters, city: e.target.value })}
+              value={searchInputs.city}
+              onChange={(e) => setSearchInputs({ ...searchInputs, city: e.target.value })}
             >
               <option value="">كل المدن</option>
-              {saudiCities.map((c) => (
+              {cities.map((c) => (
                 <option key={c} value={c}>
                   {c}
                 </option>
@@ -89,9 +135,9 @@ export default function Projects() {
             </label>
             <select
               className="w-full px-4 py-3 bg-bg rounded-xl border border-transparent focus:border-secondary transition-all outline-none appearance-none cursor-pointer"
-              value={filters.status}
+              value={searchInputs.status}
               onChange={(e) =>
-                setFilters({ ...filters, status: e.target.value })
+                setSearchInputs({ ...searchInputs, status: e.target.value })
               }
             >
               <option value="">كل الحالات</option>
@@ -102,11 +148,23 @@ export default function Projects() {
           </div>
 
           <button
-            onClick={() => setFilters({ city: "", status: "", search: "" })}
+            onClick={() => setActiveFilters({ ...searchInputs })}
             className="px-8 py-3 bg-secondary text-primary font-black rounded-xl hover:bg-accent transition-all whitespace-nowrap"
           >
             بحث
           </button>
+
+          {/* {(activeFilters.city || activeFilters.status || activeFilters.search) && (
+            <button
+              onClick={() => {
+                setSearchInputs({ city: "", status: "", search: "" });
+                setActiveFilters({ city: "", status: "", search: "" });
+              }}
+              className="px-6 py-3 bg-red-50 text-red-600 hover:bg-red-100 font-black rounded-xl transition-all whitespace-nowrap"
+            >
+              إعادة تعيين
+            </button>
+          )} */}
         </div>
 
         {/* Results Grid */}

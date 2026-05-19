@@ -75,9 +75,11 @@ export interface BlogPost {
   excerpt: string
   content: string
   category: string
-  image: string
+  image?: string
+  coverImage?: string
   author: string
-  publishedAt: string
+  publishedAt?: string
+  createdAt?: string
   readingTime: number
   status?: 'published' | 'draft'
 }
