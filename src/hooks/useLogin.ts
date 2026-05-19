@@ -1,24 +1,35 @@
 // hooks/useLogin.ts
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import api from "@/lib/axios";
+import axios from "axios";
 import toast from "react-hot-toast";
 import { LoginSchema } from "@/lib/Schemas/Loginschema";
+import { baseURL } from "@/consts/index";
 
 export const useLogin = () => {
   const router = useRouter();
 
   return useMutation({
     mutationFn: async (data: LoginSchema) => {
-      // جرب developer الأول
-      try {
-        const res = await api.post("/api/v1/auth/developer/login", data);
-        return { ...res.data, role: "developer" };
-      } catch {
-        // لو فشل جرب admin
-        const res = await api.post("/api/v1/auth/admin/login", data);
-        return { ...res.data, role: "admin" };
+      const rawAxios = axios.create({ baseURL, timeout: 30000 });
+
+      const [devResult, adminResult] = await Promise.allSettled([
+        rawAxios.post("/api/v1/auth/developer/login", data),
+        rawAxios.post("/api/v1/auth/admin/login", data),
+      ]);
+
+      if (devResult.status === "fulfilled" && devResult.value.data?.success) {
+        return { ...devResult.value.data, role: "developer" };
       }
+
+      if (
+        adminResult.status === "fulfilled" &&
+        adminResult.value.data?.success
+      ) {
+        return { ...adminResult.value.data, role: "admin" };
+      }
+
+      throw new Error("بيانات غير صحيحة");
     },
 
     onSuccess: (data) => {
@@ -30,13 +41,13 @@ export const useLogin = () => {
         localStorage.setItem("role", role);
       }
 
+      toast.success("تم تسجيل الدخول بنجاح");
+
       if (role === "developer") {
         router.push("/developer/dashboard");
       } else {
         router.push("/admin/dashboard");
       }
-
-      toast.success("تم تسجيل الدخول بنجاح");
     },
 
     onError: () => {
