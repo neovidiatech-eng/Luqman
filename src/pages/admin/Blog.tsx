@@ -1,79 +1,96 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Image from "next/image";
-import {
-  Search,
-  Plus,
-  Edit,
-  Trash2,
-  Eye,
-  X,
-  Save,
-  Calendar,
-  User,
-  Clock,
-  Tag,
-} from "lucide-react";
+import { Search, Plus, Edit, Trash2, Eye } from "lucide-react";
 import DataTable from "@/components/admin/DataTable";
 import StatusBadge from "@/components/admin/StatusBadge";
 import ConfirmModal from "@/components/shared/ConfirmModal";
-import { showToast } from "@/components/shared/Toast";
-import { mockBlogPosts, blogCategories } from "@/lib/mock-data";
-import { BlogPost } from "@/lib/types";
 import { formatDate } from "@/lib/utils";
 import { PreviewModal } from "@/components/blog/PreviewModal";
 import { EditModal } from "@/components/blog/EditModal";
-
+import { AddModal } from "@/components/blog/Addmodal";
+import { BlogPost } from "@/services/admin/Blogservice";
+import {
+  useDeleteBlogPost,
+  useGetBlogPosts,
+  useUpdateBlogPost,
+  useCreateBlogPost,
+} from "@/hooks/admin/Useblog";
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
 export default function Blog() {
-  const [articles, setArticles] = useState<BlogPost[]>(mockBlogPosts);
   const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState<
+    "all" | "published" | "draft"
+  >("all");
+  const [page, setPage] = useState(1);
 
+  const [addModalOpen, setAddModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<string | null>(null);
-
   const [previewPost, setPreviewPost] = useState<BlogPost | null>(null);
   const [editPost, setEditPost] = useState<BlogPost | null>(null);
 
-  const filteredArticles = articles.filter((a: BlogPost) => {
-    const matchSearch =
-      a.title.includes(searchTerm) || a.author.includes(searchTerm);
-    const matchStatus = statusFilter === "all" || a.status === statusFilter;
-    return matchSearch && matchStatus;
+  // ─── Hooks ──────────────────────────────────────────────────────────────────
+  const { data, isLoading } = useGetBlogPosts({
+    page,
+    limit: 10,
+    search: searchTerm || undefined,
+    // فقط نبعت isPublished لو الفلتر مش "all"
+    isPublished:
+      statusFilter === "published"
+        ? true
+        : statusFilter === "draft"
+          ? false
+          : undefined,
   });
 
+  const { mutate: deletePost, isPending: isDeleting } = useDeleteBlogPost();
+  const { mutate: updatePost, isPending: isUpdating } = useUpdateBlogPost();
+  const { mutate: createPost, isPending: isCreating } = useCreateBlogPost();
+
+  const posts = data?.data?.posts ?? [];
+  const pagination = data?.data?.pagination;
+
+  // ─── Handlers ───────────────────────────────────────────────────────────────
   const handleDeleteClick = (id: string) => {
     setItemToDelete(id);
     setDeleteModalOpen(true);
   };
 
   const confirmDelete = () => {
-    if (itemToDelete) {
-      setArticles((prev: BlogPost[]) =>
-        prev.filter((a: BlogPost) => a.id !== itemToDelete),
-      );
-      showToast("تم حذف المقال بنجاح", "success");
-    }
+    if (itemToDelete) deletePost(itemToDelete);
     setDeleteModalOpen(false);
     setItemToDelete(null);
   };
 
   const handleSaveEdit = (updated: BlogPost) => {
-    setArticles((prev) => prev.map((a) => (a.id === updated.id ? updated : a)));
-    showToast("تم تحديث المقال بنجاح", "success");
-    setEditPost(null);
+    updatePost(
+      {
+        id: updated.id,
+        payload: {
+          title: updated.title,
+          slug: updated.slug,
+          content: updated.content,
+          excerpt: updated.excerpt,
+          category: updated.category,
+          tags: updated.tags, // ✅ string[] مباشرة
+          isPublished: updated.isPublished,
+        },
+      },
+      { onSuccess: () => setEditPost(null) },
+    );
   };
 
+  // ─── Columns ─────────────────────────────────────────────────────────────────
   const columns = [
     {
       header: "المقال",
-      render: (item: any) => (
+      render: (item: BlogPost) => (
         <div className="flex items-center gap-3">
           <div className="relative w-16 h-12 rounded overflow-hidden shrink-0 border border-gray-100">
             <Image
-              src={item.image}
+              src={item.coverImage || "/placeholder.svg"}
               alt={item.title}
               fill
               className="object-cover"
@@ -96,32 +113,33 @@ export default function Blog() {
     },
     {
       header: "الكاتب",
-      accessor: "author" as keyof (typeof mockBlogPosts)[0],
-      render: (item: any) => (
+      render: (item: BlogPost) => (
         <span className="text-sm font-medium">{item.author}</span>
       ),
     },
     {
+      header: "التصنيف",
+      render: (item: BlogPost) => (
+        <span className="text-sm text-gray-500">{item.category}</span>
+      ),
+    },
+    {
       header: "تاريخ النشر",
-      render: (item: any) => (
+      render: (item: BlogPost) => (
         <span className="text-sm text-gray-500">
-          {formatDate(item.publishedAt)}
+          {formatDate(item.createdAt)}
         </span>
       ),
     },
     {
-      header: "وقت القراءة",
-      render: (item: any) => (
-        <span className="text-sm font-mono">{item.readingTime} د</span>
+      header: "الحالة",
+      render: (item: BlogPost) => (
+        <StatusBadge status={item.isPublished ? "published" : "draft"} />
       ),
     },
     {
-      header: "الحالة",
-      render: (item: any) => <StatusBadge status={item.status} />,
-    },
-    {
       header: "إجراءات",
-      render: (item: any) => (
+      render: (item: BlogPost) => (
         <div className="flex items-center gap-2">
           <button
             onClick={() => setPreviewPost({ ...item })}
@@ -149,8 +167,10 @@ export default function Blog() {
     },
   ];
 
+  // ─── Render ──────────────────────────────────────────────────────────────────
   return (
     <div className="space-y-6">
+      {/* Filters */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div className="flex-1 flex flex-col sm:flex-row gap-3 w-full">
           <div className="relative flex-1">
@@ -162,13 +182,19 @@ export default function Blog() {
               type="text"
               placeholder="بحث بعنوان المقال، الكاتب..."
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setPage(1);
+              }}
               className="w-full bg-white border border-gray-200 rounded-lg py-2 pr-10 pl-4 text-sm focus:outline-none focus:border-[var(--primary)]"
             />
           </div>
           <select
             value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
+            onChange={(e) => {
+              setStatusFilter(e.target.value as "all" | "published" | "draft");
+              setPage(1);
+            }}
             className="bg-white border border-gray-200 rounded-lg py-2 px-4 text-sm focus:outline-none focus:border-[var(--primary)] sm:w-48"
           >
             <option value="all">كل الحالات</option>
@@ -176,52 +202,97 @@ export default function Blog() {
             <option value="draft">مسودة</option>
           </select>
         </div>
-        <button className="flex items-center gap-2 bg-[var(--primary)] text-white px-4 py-2 rounded-lg text-sm font-bold hover:opacity-90 transition-opacity shrink-0">
+
+        {/* ── زرار إضافة مقال ── */}
+        <button
+          onClick={() => setAddModalOpen(true)}
+          className="flex items-center gap-2 bg-[var(--primary)] text-white px-4 py-2 rounded-lg text-sm font-bold hover:opacity-90 transition-opacity shrink-0"
+        >
           <Plus size={18} />
           إضافة مقال
         </button>
       </div>
 
+      {/* Table */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-        <DataTable
-          data={filteredArticles}
-          columns={columns}
-          keyExtractor={(item) => item.id}
-        />
-        <div className="p-4 border-t border-gray-100 flex items-center justify-between text-sm text-gray-500">
-          <div>
-            عرض 1 إلى {Math.min(10, filteredArticles.length)} من{" "}
-            {filteredArticles.length} مقال
+        {isLoading ? (
+          <div className="flex items-center justify-center py-16 text-gray-400 text-sm">
+            جاري التحميل...
           </div>
-          <div className="flex gap-1">
-            <button
-              className="px-3 py-1 border rounded hover:bg-gray-50 disabled:opacity-50"
-              disabled
-            >
-              السابق
-            </button>
-            <button className="px-3 py-1 bg-[var(--primary)] text-white rounded">
-              1
-            </button>
-            <button
-              className="px-3 py-1 border rounded hover:bg-gray-50 disabled:opacity-50"
-              disabled
-            >
-              التالي
-            </button>
+        ) : (
+          <DataTable
+            data={posts}
+            columns={columns}
+            keyExtractor={(item) => item.id}
+          />
+        )}
+
+        {/* Pagination */}
+        {pagination && (
+          <div className="p-4 border-t border-gray-100 flex items-center justify-between text-sm text-gray-500">
+            <div>
+              عرض {posts.length} من {pagination.total} مقال
+            </div>
+            <div className="flex gap-1">
+              <button
+                onClick={() => setPage((p) => p - 1)}
+                disabled={!pagination.hasPrevPage}
+                className="px-3 py-1 border rounded hover:bg-gray-50 disabled:opacity-50"
+              >
+                السابق
+              </button>
+              {Array.from(
+                { length: pagination.totalPages },
+                (_, i) => i + 1,
+              ).map((p) => (
+                <button
+                  key={p}
+                  onClick={() => setPage(p)}
+                  className={`px-3 py-1 rounded ${
+                    p === pagination.page
+                      ? "bg-[var(--primary)] text-white"
+                      : "border hover:bg-gray-50"
+                  }`}
+                >
+                  {p}
+                </button>
+              ))}
+              <button
+                onClick={() => setPage((p) => p + 1)}
+                disabled={!pagination.hasNextPage}
+                className="px-3 py-1 border rounded hover:bg-gray-50 disabled:opacity-50"
+              >
+                التالي
+              </button>
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
-      {/* Modals */}
+      {/* ── Modals ── */}
+
+      {/* Add */}
+      <AddModal
+        isOpen={addModalOpen}
+        onClose={() => setAddModalOpen(false)}
+        isSaving={isCreating}
+        onSave={(payload) =>
+          createPost(payload, { onSuccess: () => setAddModalOpen(false) })
+        }
+      />
+
+      {/* Preview */}
       <PreviewModal post={previewPost} onClose={() => setPreviewPost(null)} />
 
+      {/* Edit */}
       <EditModal
         post={editPost}
         onClose={() => setEditPost(null)}
         onSave={handleSaveEdit}
+        isSaving={isUpdating}
       />
 
+      {/* Delete confirm */}
       <ConfirmModal
         isOpen={deleteModalOpen}
         title="حذف مقال"
@@ -231,7 +302,7 @@ export default function Blog() {
           setDeleteModalOpen(false);
           setItemToDelete(null);
         }}
-        confirmLabel="حذف نهائياً"
+        confirmLabel={isDeleting ? "جاري الحذف..." : "حذف نهائياً"}
       />
     </div>
   );

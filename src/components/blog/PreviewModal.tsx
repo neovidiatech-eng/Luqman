@@ -1,26 +1,9 @@
 "use client";
-import { useEffect, useState } from "react";
 import Image from "next/image";
-import {
-  Search,
-  Plus,
-  Edit,
-  Trash2,
-  Eye,
-  X,
-  Save,
-  Calendar,
-  User,
-  Clock,
-  Tag,
-} from "lucide-react";
-import DataTable from "@/components/admin/DataTable";
-import StatusBadge from "@/components/admin/StatusBadge";
-import ConfirmModal from "@/components/shared/ConfirmModal";
-import { showToast } from "@/components/shared/Toast";
-import { mockBlogPosts, blogCategories } from "@/lib/mock-data";
-import { BlogPost } from "@/lib/types";
+import { X, User, Calendar, Clock, Tag } from "lucide-react";
+import { BlogPost } from "@/services/admin/Blogservice";
 import { formatDate } from "@/lib/utils";
+
 export function PreviewModal({
   post,
   onClose,
@@ -54,23 +37,21 @@ export function PreviewModal({
           {/* Cover Image */}
           <div className="relative w-full h-52">
             <Image
-              src={post.coverImage || post.image || '/placeholder.svg'}
+              src={post.coverImage || "/placeholder.svg"}
               alt={post.title}
               fill
               className="object-cover"
               sizes="(max-width: 672px) 100vw, 672px"
             />
-            {post.status && (
-              <span
-                className={`absolute top-3 right-3 text-xs font-bold px-3 py-1 rounded-full ${
-                  post.status === "published"
-                    ? "bg-green-100 text-green-700"
-                    : "bg-yellow-100 text-yellow-700"
-                }`}
-              >
-                {post.status === "published" ? "منشور" : "مسودة"}
-              </span>
-            )}
+            <span
+              className={`absolute top-3 right-3 text-xs font-bold px-3 py-1 rounded-full ${
+                post.isPublished
+                  ? "bg-green-100 text-green-700"
+                  : "bg-yellow-100 text-yellow-700"
+              }`}
+            >
+              {post.isPublished ? "منشور" : "مسودة"}
+            </span>
           </div>
 
           {/* Body */}
@@ -87,11 +68,7 @@ export function PreviewModal({
               </span>
               <span className="flex items-center gap-1.5">
                 <Calendar size={14} />
-                {(post.publishedAt || post.createdAt) ? formatDate(post.publishedAt || post.createdAt!) : 'غير محدد'}
-              </span>
-              <span className="flex items-center gap-1.5">
-                <Clock size={14} />
-                {post.readingTime} دقائق قراءة
+                {formatDate(post.createdAt)}
               </span>
               <span className="flex items-center gap-1.5">
                 <Tag size={14} />
@@ -99,12 +76,26 @@ export function PreviewModal({
               </span>
             </div>
 
+            {/* Tags */}
+            {post.tags?.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {post.tags.map((tag) => (
+                  <span
+                    key={tag}
+                    className="text-xs bg-gray-100 text-gray-600 px-2.5 py-1 rounded-full"
+                  >
+                    #{tag}
+                  </span>
+                ))}
+              </div>
+            )}
+
             {/* Excerpt */}
             <div className="bg-gray-50 rounded-xl p-4 text-sm text-gray-600 leading-relaxed border-r-4 border-[var(--primary)]">
               {post.excerpt}
             </div>
 
-            {/* Content preview */}
+            {/* Content */}
             <div
               className="text-sm text-gray-700 leading-relaxed prose prose-sm max-w-none"
               dangerouslySetInnerHTML={{ __html: post.content }}

@@ -3,6 +3,7 @@ import {
   activateDeveloper,
   deleteDeveloper,
   disableDeveloper,
+  getDeveloperProfile,
   getDevelopers,
   GetDevelopersParams,
 } from "@/services/admin/Developersservice";
@@ -16,6 +17,10 @@ export const developersKeys = {
   list: (params: GetDevelopersParams) => ["developers", params] as const,
 };
 
+export const developerProfileKeys = {
+  all: ["developerProfile"] as const,
+  detail: (id: string) => ["developerProfile", id] as const,
+};
 // ─── Hook ─────────────────────────────────────────────────────────────────────
 
 export const useGetDevelopers = (params: GetDevelopersParams = {}) => {
@@ -69,5 +74,16 @@ export const useDeleteDeveloper = () => {
       const message = error.response?.data?.message || "حدث خطأ، حاول مرة أخرى";
       toast.error(message);
     },
+  });
+};
+export const useGetDeveloperProfile = (id: string) => {
+  return useQuery({
+    queryKey: developerProfileKeys.detail(id),
+    queryFn: () => getDeveloperProfile(id),
+    select: (res) => ({
+      ...res.data.developer,
+      properties: res.data.properties,
+    }),
+    enabled: !!id,
   });
 };

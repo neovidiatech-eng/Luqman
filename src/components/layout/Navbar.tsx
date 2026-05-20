@@ -66,7 +66,7 @@ export default function Navbar() {
         {/* Actions */}
         <div className="hidden lg:flex items-center gap-4">
           <Link
-            href="/admin/login"
+            href="/login"
             className="px-4 py-2 bg-primary text-white rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-secondary transition-all shadow-sm"
           >
             دخول المشرف
@@ -154,7 +154,7 @@ export default function Navbar() {
                   <span>تواصل عبر واتساب</span>
                 </a>
                 <Link
-                  href="/admin/login"
+                  href="/login"
                   className="flex justify-center w-full bg-primary text-white py-4 rounded-xl font-bold text-lg"
                 >
                   دخول المشرف
