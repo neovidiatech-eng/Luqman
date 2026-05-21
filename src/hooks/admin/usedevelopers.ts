@@ -21,7 +21,8 @@ export const developerProfileKeys = {
   all: ["developerProfile"] as const,
   detail: (id: string) => ["developerProfile", id] as const,
 };
-// ─── Hook ─────────────────────────────────────────────────────────────────────
+
+// ─── Hooks ────────────────────────────────────────────────────────────────────
 
 export const useGetDevelopers = (params: GetDevelopersParams = {}) => {
   return useQuery({
@@ -45,13 +46,11 @@ export const useToggleDeveloperStatus = () => {
         await activateDeveloper(id);
       }
     },
-
     onSuccess: (_, { currentStatus }) => {
       const newStatus = currentStatus === "active" ? "موقوف" : "نشط";
       toast.success(`تم تغيير حالة الحساب إلى ${newStatus}`);
       queryClient.invalidateQueries({ queryKey: developersKeys.all });
     },
-
     onError: (error) => {
       const message = error.response?.data?.message || "حدث خطأ، حاول مرة أخرى";
       toast.error(message);
@@ -64,25 +63,26 @@ export const useDeleteDeveloper = () => {
 
   return useMutation<void, AxiosError<{ message: string }>, string>({
     mutationFn: deleteDeveloper,
-
     onSuccess: () => {
       toast.success("تم حذف المطور بنجاح");
       queryClient.invalidateQueries({ queryKey: developersKeys.all });
     },
-
     onError: (error) => {
       const message = error.response?.data?.message || "حدث خطأ، حاول مرة أخرى";
       toast.error(message);
     },
   });
 };
+
+// Returns { developer, properties, projects } — all three from the response
 export const useGetDeveloperProfile = (id: string) => {
   return useQuery({
     queryKey: developerProfileKeys.detail(id),
     queryFn: () => getDeveloperProfile(id),
     select: (res) => ({
-      ...res.data.developer,
+      developer: res.data.developer,
       properties: res.data.properties,
+      projects: res.data.projects,
     }),
     enabled: !!id,
   });

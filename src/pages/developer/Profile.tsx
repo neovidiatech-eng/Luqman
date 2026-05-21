@@ -284,7 +284,7 @@ export default function Profile() {
                 <span className="text-[10px] font-bold text-white/40 uppercase block mb-2">
                   السجل التجاري
                 </span>
-                <a
+                {/* <a
                   href={profile.commercialRegFile}
                   target="_blank"
                   rel="noopener noreferrer"
@@ -300,7 +300,26 @@ export default function Profile() {
                     size={15}
                     className="text-white/40 group-hover:text-white transition-colors shrink-0"
                   />
-                </a>
+                </a> */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    const viewerUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(profile.commercialRegFile!)}&embedded=false`;
+                    window.open(viewerUrl, "_blank", "noopener,noreferrer");
+                  }}
+                  className="flex items-center gap-3 bg-white/10 hover:bg-white/20 transition-colors px-4 py-3 rounded-2xl group w-full text-right"
+                >
+                  <div className="w-9 h-9 bg-white/10 rounded-xl flex items-center justify-center shrink-0">
+                    <Shield size={16} className="text-[var(--secondary)]" />
+                  </div>
+                  <span className="text-sm font-bold flex-1 truncate">
+                    عرض الملف
+                  </span>
+                  <ExternalLink
+                    size={15}
+                    className="text-white/40 group-hover:text-white transition-colors shrink-0"
+                  />
+                </button>
               </div>
             )}
           </div>
