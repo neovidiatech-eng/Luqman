@@ -6,14 +6,14 @@
 @source "../lib";
 @theme {
   /* من website — الأكمل */
-  --color-primary: #1b2a4a;
+  --color-primary: #133c2e;
   --color-secondary: #c9a84c;
   --color-accent: #e8d5a3;
   --color-bg: #f8f6f1;
   --color-app-bg: #f8f6f1;
   --color-surface: #ffffff;
-  --color-text: #1b2a4a;
-  --color-text-main: #1b2a4a;
+  --color-text: #133c2e;
+  --color-text-main: #133c2e;
   --color-text-muted: #6b7280;
   --color-success: #10b981;
   --color-warning: #f59e0b;
@@ -21,7 +21,7 @@
   --color-border: #e5e7eb;
   --color-border-subtle: #e5e7eb;
   --color-muted: #6b7280;
-  --color-sidebar-bg: #1b2a4a;
+  --color-sidebar-bg: #133c2e;
   --color-sidebar-text: #f8f6f1;
   --color-whatsapp: #25d366;
 
@@ -29,25 +29,25 @@
 
   /* shadows من website */
   --shadow-sleek:
-    0 4px 6px -1px rgba(27, 42, 74, 0.05), 0 2px 4px -1px rgba(27, 42, 74, 0.03);
+    0 4px 6px -1px rgba(19, 60, 46, 0.05), 0 2px 4px -1px rgba(19, 60, 46, 0.03);
   --shadow-sleek-lg:
-    0 10px 15px -3px rgba(27, 42, 74, 0.07),
-    0 4px 6px -2px rgba(27, 42, 74, 0.04);
+    0 10px 15px -3px rgba(19, 60, 46, 0.07),
+    0 4px 6px -2px rgba(19, 60, 46, 0.04);
 }
 
 :root {
-  --primary: #1b2a4a;
+  --primary: #133c2e;
   --secondary: #c9a84c;
   --accent: #e8d5a3;
   --bg: #f8f6f1;
   --surface: #ffffff;
-  --text: #1b2a4a;
+  --text: #133c2e;
   --text-muted: #6b7280;
   --success: #10b981;
   --warning: #f59e0b;
   --error: #ef4444;
   --border: #e5e7eb;
-  --sidebar-bg: #1b2a4a;
+  --sidebar-bg: #133c2e;
   --sidebar-text: #f8f6f1;
   --whatsapp: #25d366;
 }

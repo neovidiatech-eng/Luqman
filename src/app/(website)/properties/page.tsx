@@ -61,51 +61,22 @@ function PropertiesContent() {
   };
 
   return (
-    <main className="pt-32 pb-20 bg-bg min-h-screen">
+    <main className="pt-32 pb-20 bg-[#FBF8F3] min-h-screen">
       <div className="container">
-        <Breadcrumb items={[{ label: "العقارات" }]} />
-
-        <header className="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
-          <div>
-            <h1 className="text-4xl font-black text-primary mb-2">
-              استكشف العقارات
-            </h1>
-            <p className="text-text-muted">
-              {isLoading ? "جاري البحث..." : `تم العثور على ${filteredProperties.length} عقاراً يطابق بحثك`}
-            </p>
-          </div>
-
-          <div className="flex items-center gap-4">
-            {/* View Switcher */}
-            <div className="bg-white p-1 rounded-xl border border-border flex">
-              <button
-                onClick={() => setView("grid")}
-                className={`p-2 rounded-lg transition-all ${view === "grid" ? "bg-primary text-white shadow-lg" : "text-gray-400 hover:text-primary"}`}
-              >
-                <LayoutGrid className="w-5 h-5" />
-              </button>
-              <button
-                onClick={() => setView("list")}
-                className={`p-2 rounded-lg transition-all ${view === "list" ? "bg-primary text-white shadow-lg" : "text-gray-400 hover:text-primary"}`}
-              >
-                <ListIcon className="w-5 h-5" />
-              </button>
-            </div>
-
-            {/* Mobile Filter Toggle */}
-            <button
-              onClick={() => setShowMobileFilters(true)}
-              className="lg:hidden btn btn-primary py-2.5 flex items-center gap-2"
-            >
-              <SlidersHorizontal className="w-5 h-5" />
-              <span>الفلاتر</span>
-            </button>
-          </div>
+        {/* Right-aligned Page Header */}
+        <header className="mb-12 text-right">
+          <h1 className="text-4xl font-extrabold text-[#133c2e] mb-3">
+            اكتشف عقارك المثالي في السعودية
+          </h1>
+          <p className="text-gray-400 font-bold text-sm">
+            {isLoading ? "جاري البحث..." : `عرض ${filteredProperties.length} عقار`}
+          </p>
         </header>
 
-        <div className="flex flex-col lg:flex-row gap-8">
-          {/* Sidebar Filters - Desktop */}
-          <aside className="hidden lg:block w-1/4">
+        {/* Layout Grid: Filters on the right, Cards on the left (RTL) */}
+        <div className="flex flex-col lg:flex-row gap-20">
+          {/* Filters Sidebar (First child = Right on desktop, Top on mobile in RTL) */}
+          <aside className="w-full lg:w-1/4">
             <PropertyFilters
               filters={filters}
               setFilters={setFilters}
@@ -113,45 +84,42 @@ function PropertiesContent() {
             />
           </aside>
 
-          {/* Results Grid */}
-          <div className="lg:w-3/4">
+          {/* Results Grid (Second child = Left on desktop, Bottom on mobile in RTL) */}
+          <div className="w-full lg:w-3/4" id="results-grid">
             {isLoading ? (
               <div className="flex justify-center items-center h-64">
-                <p className="text-primary font-bold text-xl">جاري تحميل العقارات...</p>
+                <p className="text-[#133c2e] font-black text-lg">جاري تحميل العقارات...</p>
               </div>
             ) : error ? (
               <div className="flex justify-center items-center h-64">
-                <p className="text-red-500 font-bold text-xl">حدث خطأ أثناء تحميل العقارات</p>
+                <p className="text-red-500 font-black text-lg">حدث خطأ أثناء تحميل العقارات</p>
               </div>
             ) : filteredProperties.length > 0 ? (
-              <div
-                className={`grid gap-8 ${view === "grid" ? "grid-cols-1 sm:grid-cols-2 xl:grid-cols-3" : "grid-cols-1"}`}
-              >
+              <div className="grid gap-8 grid-cols-1 sm:grid-cols-2">
                 {filteredProperties.map((property) => (
                   <motion.div
                     layout
-                    initial={{ opacity: 0, scale: 0.9 }}
+                    initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ duration: 0.3 }}
                     key={property.id}
                   >
-                    <PropertyCard property={property} view={view} />
+                    <PropertyCard property={property} view="grid" />
                   </motion.div>
                 ))}
               </div>
             ) : (
-              <div className="bg-white rounded-3xl p-20 text-center border-2 border-dashed border-gray-200">
-                <div className="w-20 h-20 bg-bg rounded-full flex items-center justify-center mx-auto mb-6">
-                  <SlidersHorizontal className="w-10 h-10 text-gray-300" />
+              <div className="bg-white rounded-[24px] p-16 text-center border border-gray-100 shadow-sm">
+                <div className="w-16 h-16 bg-[#FBF8F3] rounded-full flex items-center justify-center mx-auto mb-4">
+                  <SlidersHorizontal className="w-8 h-8 text-gray-300" />
                 </div>
-                <h3 className="text-2xl font-bold text-primary mb-2">
+                <h3 className="text-xl font-extrabold text-[#133c2e] mb-2">
                   لا توجد نتائج
                 </h3>
-                <p className="text-text-muted mb-8 text-lg">
-                  لم يتم العثور على أي عقار يطابق هذه الفلاتر، جرب تغيير خيارات
-                  البحث.
+                <p className="text-gray-400 mb-6 text-sm">
+                  لم يتم العثور على أي عقار يطابق هذه الفلاتر، جرب تغيير خيارات البحث.
                 </p>
-                <button onClick={clearFilters} className="btn btn-secondary">
+                <button onClick={clearFilters} className="bg-[#c9a84c] text-[#133c2e] px-6 py-2.5 rounded-xl font-bold text-sm hover:bg-[#b8973b] transition-all">
                   إعادة تعيين البحث
                 </button>
               </div>
@@ -159,43 +127,6 @@ function PropertiesContent() {
           </div>
         </div>
       </div>
-
-      {/* Mobile Filters Drawer */}
-      <AnimatePresence>
-        {showMobileFilters && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setShowMobileFilters(false)}
-              className="fixed inset-0 bg-black/50 z-[100] backdrop-blur-sm lg:hidden"
-            />
-            <motion.div
-              initial={{ y: "100%" }}
-              animate={{ y: 0 }}
-              exit={{ y: "100%" }}
-              transition={{ type: "spring", damping: 25 }}
-              className="fixed bottom-0 left-0 w-full h-[85vh] bg-white z-[110] rounded-t-[3rem] p-6 shadow-2xl lg:hidden flex flex-col"
-            >
-              <div className="w-12 h-1.5 bg-gray-200 rounded-full mx-auto mb-6"></div>
-              <div className="overflow-y-auto flex-1 pb-10">
-                <PropertyFilters
-                  filters={filters}
-                  setFilters={setFilters}
-                  onClear={clearFilters}
-                />
-              </div>
-              <button
-                onClick={() => setShowMobileFilters(false)}
-                className="w-full btn btn-primary py-4 mt-4"
-              >
-                عرض {filteredProperties.length} عقاراً
-              </button>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
     </main>
   );
 }

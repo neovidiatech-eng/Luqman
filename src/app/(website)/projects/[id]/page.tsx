@@ -166,7 +166,7 @@ export default function ProjectDetail() {
                 <div className="bg-white p-8 rounded-[2.5rem] border border-border shadow-2xl">
                   <h4 className="text-2xl font-black text-primary mb-2">مهتم بهذا المشروع؟</h4>
                   <p className="text-text-muted mb-8 text-sm">اترك بياناتك وسيقوم خبير المشاريع لدينا بالتواصل معك فوراً.</p>
-                  <ContactForm compact propertyTitle={project.name} />
+                  <ContactForm compact propertyTitle={project.name} projectId={project.id} />
                 </div>
 
                 <div className="bg-bg p-8 rounded-[2rem] border border-border">

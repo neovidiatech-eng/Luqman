@@ -268,7 +268,7 @@ export default function PropertyDetail() {
                 </div>
 
                 <div className="space-y-4 ">
-                  <ContactForm compact propertyTitle={property.title} />
+                  <ContactForm compact propertyTitle={property.title} propertyId={property.id} />
 
                   <div className="pt-6 border-t border-gray-100 space-y-3">
                     <a

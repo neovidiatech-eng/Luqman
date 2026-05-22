@@ -4,31 +4,29 @@ import {
   Facebook, 
   Twitter, 
   Instagram, 
-  Linkedin, 
   MapPin, 
   Phone, 
   Mail, 
-  Clock
 } from 'lucide-react'
 import { companyInfo } from '@/lib/mock-data'
 
 export default function Footer() {
   return (
-    <footer className="bg-white border-t border-border pt-16 pb-8 text-primary">
+    <footer className="bg-[#133c2e] pt-16 pb-8 text-white border-t border-white/10">
       <div className="container">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
           {/* Company Bio */}
           <div className="lg:col-span-1">
             <Link href="/" className="flex items-center gap-2 mb-6">
-              <span className="text-2xl font-black text-primary tracking-tighter">لقمان <span className="text-secondary">العقاري</span></span>
+              <span className="text-2xl font-black tracking-tighter text-white">لقمان للتسويق العقاري</span>
             </Link>
-            <p className="text-text-muted mb-6 leading-relaxed text-xs font-bold">
-              شريككم الموثوق في البحث عن العقارات في المملكة العربية السعودية. نوفر حلولاً عقارية متكاملة تلبي تطلعاتكم وتضمن استثماراتكم.
+            <p className="text-white/80 mb-6 leading-relaxed text-sm">
+              وسيط عقاري مرخص يعمل لمصلحتك.
             </p>
             <div className="flex items-center gap-3">
               {[Facebook, Twitter, Instagram].map((Icon, i) => (
-                <a key={i} href="#" className="w-8 h-8 rounded-full bg-bg flex items-center justify-center hover:bg-secondary hover:text-primary transition-all text-primary shadow-sm">
-                  <Icon className="w-4 h-4" />
+                <a key={i} href="#" className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-[#c9a84c] hover:text-[#133c2e] transition-all text-white shadow-sm">
+                  <Icon className="w-5 h-5" />
                 </a>
               ))}
             </div>
@@ -36,8 +34,8 @@ export default function Footer() {
 
           {/* Quick Links */}
           <div>
-            <h4 className="text-[10px] font-black uppercase tracking-[0.2em] mb-8 text-primary">روابط سريعة</h4>
-            <ul className="space-y-3 text-[11px] font-bold">
+            <h4 className="text-lg font-bold mb-6 text-[#c9a84c]">روابط سريعة</h4>
+            <ul className="space-y-4 text-sm">
               {[
                 { name: 'الرئيسية', path: '/' },
                 { name: 'العقارات', path: '/properties' },
@@ -48,7 +46,7 @@ export default function Footer() {
                 <li key={i}>
                   <Link 
                     href={link.path}
-                    className="text-text-muted hover:text-secondary transition-all"
+                    className="text-white/80 hover:text-[#c9a84c] transition-all"
                   >
                     {link.name}
                   </Link>
@@ -59,34 +57,34 @@ export default function Footer() {
 
           {/* Contact Info */}
           <div>
-            <h4 className="text-[10px] font-black uppercase tracking-[0.2em] mb-8 text-primary">تواصل معنا</h4>
-            <ul className="space-y-4 text-[11px]">
+            <h4 className="text-lg font-bold mb-6 text-[#c9a84c]">تواصل معنا</h4>
+            <ul className="space-y-4 text-sm">
               <li className="flex gap-4">
-                <MapPin className="text-secondary shrink-0 w-4 h-4" />
-                <span className="text-text-muted font-bold">{companyInfo.address}</span>
+                <MapPin className="text-[#c9a84c] shrink-0 w-5 h-5" />
+                <span className="text-white/80">{companyInfo.address}</span>
               </li>
               <li className="flex gap-4">
-                <Mail className="text-secondary shrink-0 w-4 h-4" />
-                <span className="text-text-muted font-bold">{companyInfo.email}</span>
+                <Mail className="text-[#c9a84c] shrink-0 w-5 h-5" />
+                <span className="text-white/80">{companyInfo.email}</span>
               </li>
               <li className="flex gap-4">
-                <Phone className="text-secondary shrink-0 w-4 h-4" />
-                <span className="text-text-muted font-bold ltr">{companyInfo.phone}</span>
+                <Phone className="text-[#c9a84c] shrink-0 w-5 h-5" />
+                <span className="text-white/80 ltr">{companyInfo.phone}</span>
               </li>
             </ul>
           </div>
 
           {/* Newsletter */}
           <div>
-            <h4 className="text-[10px] font-black uppercase tracking-[0.2em] mb-8 text-primary">النشرة الإخبارية</h4>
-            <p className="text-text-muted text-[11px] mb-6 font-bold leading-relaxed">اشترك لتصلك أحدث العروض والمشاريع الحصرية.</p>
+            <h4 className="text-lg font-bold mb-6 text-[#c9a84c]">النشرة الإخبارية</h4>
+            <p className="text-white/80 text-sm mb-6 leading-relaxed">اشترك لتصلك أحدث العروض والمشاريع الحصرية.</p>
             <div className="flex gap-2">
               <input 
                 type="email" 
                 placeholder="البريد الإلكتروني" 
-                className="bg-bg border border-border rounded-lg px-4 py-2 text-xs flex-1 outline-none focus:border-secondary shadow-inner" 
+                className="bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-sm flex-1 outline-none focus:border-[#c9a84c] text-white placeholder-white/50 transition-all" 
               />
-              <button className="bg-primary text-white px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-secondary hover:text-primary transition-all">
+              <button className="bg-[#c9a84c] text-[#133c2e] px-6 py-3 rounded-xl text-sm font-bold hover:bg-[#b8973b] transition-all">
                 اشترك
               </button>
             </div>
@@ -94,11 +92,11 @@ export default function Footer() {
         </div>
 
         {/* Bottom Bar */}
-        <div className="pt-8 border-t border-border flex flex-col md:flex-row items-center justify-between gap-4 text-text-muted text-[10px] font-black uppercase tracking-[0.1em]">
+        <div className="pt-8 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-4 text-white/60 text-sm">
           <p>© {new Date().getFullYear()} جميع الحقوق محفوظة لمنصة لقمان العقارية</p>
           <div className="flex items-center gap-6">
-            <a href="#" className="hover:text-secondary transition-colors">سياسة الخصوصية</a>
-            <a href="#" className="hover:text-secondary transition-colors">الشروط والأحكام</a>
+            <a href="#" className="hover:text-[#c9a84c] transition-colors">سياسة الخصوصية</a>
+            <a href="#" className="hover:text-[#c9a84c] transition-colors">الشروط والأحكام</a>
           </div>
         </div>
       </div>

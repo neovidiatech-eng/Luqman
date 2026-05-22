@@ -2,9 +2,10 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, X, MessageCircle, ArrowLeftRight } from "lucide-react";
+import { Menu, X, MessageCircle, LogIn } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { companyInfo } from "@/lib/mock-data";
+import Image from "next/image";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -27,9 +28,9 @@ export default function Navbar() {
     { name: "الرئيسية", path: "/" },
     { name: "العقارات", path: "/properties" },
     { name: "المشاريع", path: "/projects" },
-    { name: "المدونة", path: "/blog" },
     { name: "من نحن", path: "/about" },
-    { name: "اتصل بنا", path: "/contact" },
+    { name: "المدونة", path: "/blog" },
+    { name: "تواصل معنا", path: "/contact" },
   ];
 
   return (
@@ -41,9 +42,10 @@ export default function Navbar() {
       <div className="container flex items-center justify-between">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2 group">
-          <div className="text-2xl font-black text-primary tracking-tighter">
-            لقمان <span className="text-secondary">العقاري</span>
-          </div>
+        <img src="logo.webp" alt="logo" width={60} height={60}/>
+          <div className="text-lg font-black text-[#133c2e] tracking-tighter flex items-center gap-2">
+            لقمان
+           </div>
         </Link>
 
         {/* Desktop Nav */}
@@ -52,10 +54,10 @@ export default function Navbar() {
             <Link
               key={link.path}
               href={link.path}
-              className={`font-black text-xs uppercase tracking-widest transition-colors ${
+              className={`font-bold text-sm transition-colors ${
                 pathname === link.path
-                  ? "text-secondary"
-                  : "text-primary hover:text-secondary"
+                  ? "text-[#133c2e]"
+                  : "text-[#133c2e]/80 hover:text-[#133c2e]"
               }`}
             >
               {link.name}
@@ -64,32 +66,27 @@ export default function Navbar() {
         </nav>
 
         {/* Actions */}
-        <div className="hidden lg:flex items-center gap-4">
+        <div className="hidden lg:flex items-center gap-3">
+          
           <Link
-            href="/login"
-            className="px-4 py-2 bg-primary text-white rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-secondary transition-all shadow-sm"
+            href="/contact"
+            className="px-6 py-2.5 bg-[#c9a84c] text-[#133c2e] rounded-xl text-sm font-bold transition-all shadow-sm hover:shadow-md hover:bg-[#b8973b]"
           >
-            دخول المشرف
+            عقارك بضغطة زر
           </Link>
           <Link
             href="/login"
-            className="px-4 py-2 border border-primary text-primary rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-primary hover:text-white transition-all shadow-sm"
+            className="px-5 py-2.5 border border-[#133c2e] text-[#133c2e] rounded-xl text-sm font-bold transition-all hover:bg-[#133c2e] hover:text-white flex items-center gap-2"
           >
-            بوابة المطور
+            <LogIn className="w-4 h-4" />
+            تسجيل الدخول
           </Link>
-          <a
-            href={`https://wa.me/${companyInfo.whatsapp}`}
-            target="_blank"
-            rel="noreferrer"
-            className="flex items-center gap-2 bg-whatsapp text-white px-5 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest hover:shadow-lg transition-all"
-          >
-            تواصل معنا
-          </a>
+          
         </div>
 
         {/* Mobile Toggle */}
         <button
-          className={`lg:hidden p-2 rounded-lg ${scrolled ? "text-primary" : pathname === "/" ? "text-white" : "text-primary"}`}
+          className={`lg:hidden p-2 rounded-lg text-[#133c2e]`}
           onClick={() => setIsOpen(true)}
         >
           <Menu className="w-8 h-8" />
@@ -116,16 +113,13 @@ export default function Navbar() {
             >
               <div className="flex items-center justify-between mb-12">
                 <Link href="/" className="flex items-center gap-2">
-                  <div className="w-8 h-8 bg-primary flex items-center justify-center rounded-lg">
-                    <span className="text-secondary font-black text-xl">ل</span>
-                  </div>
-                  <span className="text-xl font-black text-primary">
+                  <span className="text-xl font-black text-[#133c2e]">
                     لقمان العقارية
                   </span>
                 </Link>
                 <button
                   onClick={() => setIsOpen(false)}
-                  className="text-primary"
+                  className="text-[#133c2e]"
                 >
                   <X className="w-8 h-8" />
                 </button>
@@ -137,7 +131,7 @@ export default function Navbar() {
                     key={link.path}
                     href={link.path}
                     className={`text-xl font-bold ${
-                      pathname === link.path ? "text-secondary" : "text-primary"
+                      pathname === link.path ? "text-[#c9a84c]" : "text-[#133c2e]"
                     }`}
                   >
                     {link.name}
@@ -146,24 +140,18 @@ export default function Navbar() {
               </div>
 
               <div className="mt-auto space-y-4">
-                <a
-                  href={`https://wa.me/${companyInfo.whatsapp}`}
-                  className="flex items-center justify-center gap-2 bg-whatsapp text-white w-full py-4 rounded-xl font-bold text-lg"
-                >
-                  <MessageCircle className="w-6 h-6" />
-                  <span>تواصل عبر واتساب</span>
-                </a>
                 <Link
                   href="/login"
-                  className="flex justify-center w-full bg-primary text-white py-4 rounded-xl font-bold text-lg"
+                  className="flex justify-center items-center gap-2 w-full border-2 border-[#133c2e] text-[#133c2e] py-4 rounded-xl font-bold text-lg"
                 >
-                  دخول المشرف
+                  <LogIn className="w-5 h-5" />
+                  تسجيل الدخول
                 </Link>
                 <Link
-                  href="/login"
-                  className="flex justify-center w-full border-2 border-primary text-primary py-4 rounded-xl font-bold text-lg"
+                  href="/contact"
+                  className="flex justify-center w-full bg-[#c9a84c] text-[#133c2e] py-4 rounded-xl font-bold text-lg"
                 >
-                  بوابة المطورين
+                  عقارك بضغطة زر
                 </Link>
               </div>
             </motion.div>

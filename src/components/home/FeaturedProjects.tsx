@@ -22,7 +22,7 @@ export default function FeaturedProjects() {
   }
 
   return (
-    <section className="py-24 bg-bg">
+    <section className="py-24 bg-white">
       <div className="container">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
           <SectionTitle 
