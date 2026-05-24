@@ -22,6 +22,8 @@ import {
   useUpdateDeveloperProfile,
   useChangePassword,
 } from "@/hooks/deveoper/Useprofile";
+import { useGetDeveloperProperties } from "@/hooks/deveoper/Useproperties";
+import { useGetDeveloperProjects } from "@/hooks/deveoper/Useprojects";
 
 // ─── Skeleton ─────────────────────────────────────────────────────────────────
 
@@ -57,6 +59,11 @@ const ProfileSkeleton = () => (
 
 export default function Profile() {
   const { data: profile, isLoading } = useGetDeveloperProfile();
+  const { data: propertiesData } = useGetDeveloperProperties({ limit: 1 });
+  const { data: projectsData } = useGetDeveloperProjects({ limit: 1 });
+
+  const propertiesCount = propertiesData?.data?.pagination?.total ?? 0;
+  const projectsCount = projectsData?.data?.pagination?.total ?? 0;
   const { mutate: updateProfile, isPending: updating } =
     useUpdateDeveloperProfile();
   const { mutate: changePasswordMutate, isPending: changingPassword } =
@@ -205,17 +212,19 @@ export default function Profile() {
 
             <div className="w-full grid grid-cols-2 gap-2">
               <div className="bg-[var(--bg)] p-4 rounded-2xl text-center">
-                <p className="text-lg font-black text-[var(--primary)]">—</p>
+                <p className="text-lg font-black text-[var(--primary)]">
+                  {propertiesCount}
+                </p>
                 <p className="text-[10px] font-bold text-[var(--text-muted)] uppercase">
                   عقار
                 </p>
               </div>
               <div className="bg-[var(--bg)] p-4 rounded-2xl text-center">
                 <p className="text-lg font-black text-[var(--primary)]">
-                  ٤.٨ ألف
+                  {projectsCount}
                 </p>
                 <p className="text-[10px] font-bold text-[var(--text-muted)] uppercase">
-                  مشاهدة
+                  مشروع
                 </p>
               </div>
             </div>
@@ -284,23 +293,7 @@ export default function Profile() {
                 <span className="text-[10px] font-bold text-white/40 uppercase block mb-2">
                   السجل التجاري
                 </span>
-                {/* <a
-                  href={profile.commercialRegFile}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-3 bg-white/10 hover:bg-white/20 transition-colors px-4 py-3 rounded-2xl group"
-                >
-                  <div className="w-9 h-9 bg-white/10 rounded-xl flex items-center justify-center shrink-0">
-                    <Shield size={16} className="text-[var(--secondary)]" />
-                  </div>
-                  <span className="text-sm font-bold flex-1 truncate">
-                    عرض الملف
-                  </span>
-                  <ExternalLink
-                    size={15}
-                    className="text-white/40 group-hover:text-white transition-colors shrink-0"
-                  />
-                </a> */}
+
                 <button
                   type="button"
                   onClick={() => {

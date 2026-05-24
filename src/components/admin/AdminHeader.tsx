@@ -46,7 +46,7 @@ export default function AdminHeader() {
       </div>
 
       <div className="flex items-center gap-6">
-        <div className="relative hidden md:block">
+        {/* <div className="relative hidden md:block">
           <Search
             className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"
             size={18}
@@ -56,10 +56,10 @@ export default function AdminHeader() {
             placeholder="بحث سريع..."
             className="bg-gray-100 rounded-full py-2 pr-10 pl-4 w-64 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/20"
           />
-        </div>
+        </div> */}
 
         {/* Bell */}
-        <button
+        {/* <button
           onClick={() => router.push("/admin/contacts")}
           className="relative cursor-pointer text-gray-500 hover:text-[var(--primary)] transition-colors"
         >
@@ -69,7 +69,7 @@ export default function AdminHeader() {
               {newContactsCount > 99 ? "99+" : newContactsCount}
             </span>
           )}
-        </button>
+        </button> */}
 
         <div className="flex items-center gap-3 border-r border-gray-200 pr-6">
           <div className="text-left hidden sm:block">

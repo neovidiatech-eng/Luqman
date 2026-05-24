@@ -32,6 +32,51 @@ export type ProjectStatus =
   | "under_construction"
   | "completed";
 export type ApprovalStatus = "pending" | "approved" | "rejected";
+export type PropertyStatus = "available" | "sold" | "reserved";
+export type PropertyType =
+  | "apartment"
+  | "villa"
+  | "duplex"
+  | "land"
+  | "commercial"
+  | "office"
+  | "warehouse"
+  | "shop"
+  | "compound"
+  | "offplan"
+  | "resort"
+  | "building";
+
+export interface ProjectProperty {
+  id: string;
+  title: string;
+  description?: string;
+  type: PropertyType;
+  status: PropertyStatus;
+  approvalStatus: ApprovalStatus;
+  rejectionReason: string | null;
+  price: number;
+  area: number;
+  bedrooms: number | null;
+  bathrooms: number | null;
+  floor?: number | null;
+  city: string;
+  district: string;
+  address?: string;
+  lat?: number | null;
+  lng?: number | null;
+  images: string[];
+  videoUrl?: string | null;
+  videoLinks?: string[];
+  files?: string[];
+  features: string[];
+  isFeatured?: boolean;
+  viewsCount?: number;
+  createdAt?: string;
+  updatedAt?: string;
+  developerId?: string;
+  projectId?: string;
+}
 
 export interface Project {
   id: string;
@@ -40,8 +85,8 @@ export interface Project {
   description: string;
   city: string;
   address: string;
-  lat: number;
-  lng: number;
+  lat: number | null;
+  lng: number | null;
   images: string[];
   videoUrl: string | null;
   videoLinks: string[];
@@ -60,6 +105,11 @@ export interface Project {
   createdAt: string;
   updatedAt: string;
   developerId: string;
+  developer?: {
+    companyName: string;
+    logoUrl: string | null;
+  };
+  properties?: ProjectProperty[];
 }
 
 export interface ProjectsPagination {
@@ -144,12 +194,8 @@ export interface ResubmitProjectPayload {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-/**
- * Converts a CreateProjectPayload to FormData (multipart) for file uploads.
- */
 const toFormData = (payload: CreateProjectPayload): FormData => {
   const fd = new FormData();
-
   fd.append("name", payload.name);
   fd.append("description", payload.description);
   fd.append("city", payload.city);
@@ -159,30 +205,22 @@ const toFormData = (payload: CreateProjectPayload): FormData => {
   fd.append("completionPercent", String(payload.completionPercent));
   fd.append("totalUnits", String(payload.totalUnits));
   fd.append("deliveryDate", payload.deliveryDate);
-
   if (payload.lat !== undefined) fd.append("lat", String(payload.lat));
   if (payload.lng !== undefined) fd.append("lng", String(payload.lng));
   if (payload.videoUrl) fd.append("videoUrl", payload.videoUrl);
-
   payload.videoLinks?.forEach((link) => fd.append("videoLinks[]", link));
   payload.features?.forEach((f) => fd.append("features[]", f));
   payload.images?.forEach((img) => fd.append("images", img));
   if (payload.logo) fd.append("logo", payload.logo);
-
   return fd;
 };
 
 // ─── Service Functions ────────────────────────────────────────────────────────
 
-/**
- * GET /api/v1/projects/developer/projects
- * Fetch all projects belonging to the authenticated developer.
- */
 export const getDeveloperProjects = async (
   params: GetProjectsParams = {},
 ): Promise<GetProjectsResponse> => {
   const { page = 1, limit = 10, search, status, approvalStatus } = params;
-
   const response = await api.get<GetProjectsResponse>(
     "/api/v1/projects/developer/projects",
     {
@@ -195,14 +233,9 @@ export const getDeveloperProjects = async (
       },
     },
   );
-
   return response.data;
 };
 
-/**
- * GET /api/v1/projects/developer/projects/:id
- * Fetch a single project by its ID.
- */
 export const getDeveloperProjectById = async (
   id: string,
 ): Promise<GetProjectResponse> => {
@@ -212,41 +245,28 @@ export const getDeveloperProjectById = async (
   return response.data;
 };
 
-/**
- * POST /api/v1/projects/developer/projects
- * Create a new project (multipart/form-data).
- */
 export const createDeveloperProject = async (
   payload: CreateProjectPayload,
 ): Promise<GetProjectResponse> => {
   const fd = toFormData(payload);
-
   const response = await api.post<GetProjectResponse>(
     "/api/v1/projects/developer/projects",
     fd,
     { headers: { "Content-Type": "multipart/form-data" } },
   );
-
   return response.data;
 };
 
-/**
- * PUT /api/v1/projects/developer/projects/:id
- * Update an existing project.
- * Accepts JSON or FormData depending on whether files are included.
- */
 export const updateDeveloperProject = async (
   id: string,
   payload: UpdateProjectPayload,
 ): Promise<GetProjectResponse> => {
   const hasFile = payload.logo instanceof File || payload.image instanceof File;
-
   let body: FormData | UpdateProjectPayload;
   let headers: Record<string, string> = {};
 
   if (hasFile) {
     const fd = new FormData();
-
     if (payload.name) fd.append("name", payload.name);
     if (payload.description) fd.append("description", payload.description);
     if (payload.city) fd.append("city", payload.city);
@@ -265,7 +285,6 @@ export const updateDeveloperProject = async (
     if (payload.image instanceof File) fd.append("image", payload.image);
     payload.features?.forEach((f) => fd.append("features[]", f));
     payload.videoLinks?.forEach((l) => fd.append("videoLinks[]", l));
-
     body = fd;
     headers = { "Content-Type": "multipart/form-data" };
   } else {
@@ -277,14 +296,9 @@ export const updateDeveloperProject = async (
     body,
     { headers },
   );
-
   return response.data;
 };
 
-/**
- * DELETE /api/v1/projects/developer/projects/:id
- * Permanently delete a project.
- */
 export const deleteDeveloperProject = async (
   id: string,
 ): Promise<{ success: boolean; message: string }> => {
@@ -294,17 +308,11 @@ export const deleteDeveloperProject = async (
   return response.data;
 };
 
-/**
- * POST /api/v1/projects/developer/projects/:id/resubmit
- * Resubmit a rejected project for admin review.
- * Optionally attach updated files.
- */
 export const resubmitDeveloperProject = async (
   id: string,
   payload?: ResubmitProjectPayload,
 ): Promise<GetProjectResponse> => {
   const fd = new FormData();
-
   if (payload) {
     if (payload.name) fd.append("name", payload.name);
     if (payload.description) fd.append("description", payload.description);
@@ -313,12 +321,10 @@ export const resubmitDeveloperProject = async (
     payload.images?.forEach((img) => fd.append("images", img));
     if (payload.logo) fd.append("logo", payload.logo);
   }
-
   const response = await api.post<GetProjectResponse>(
     `/api/v1/projects/developer/projects/${id}/resubmit`,
     fd,
     { headers: { "Content-Type": "multipart/form-data" } },
   );
-
   return response.data;
 };

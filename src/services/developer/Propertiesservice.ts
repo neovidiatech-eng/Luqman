@@ -1,7 +1,6 @@
 import api from "@/lib/axios";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
-
 export type PropertyType =
   | "apartment"
   | "villa"
@@ -9,7 +8,12 @@ export type PropertyType =
   | "land"
   | "commercial"
   | "office"
-  | "warehouse";
+  | "warehouse"
+  | "shop"
+  | "compound"
+  | "offplan"
+  | "resort"
+  | "building";
 
 export type PropertyStatus = "available" | "sold" | "reserved";
 export type ApprovalStatus = "pending" | "approved" | "rejected";
@@ -53,7 +57,7 @@ export interface GetPropertiesParams {
   limit?: number;
   search?: string;
   status?: string;
-  approvalStatus?: string;
+  approvalStatus?: string; // ← ضيف السطر ده
   type?: string;
   city?: string;
 }
@@ -122,6 +126,29 @@ export interface ResubmitPropertyPayload {
   images?: File[];
 }
 
+export const PROPERTY_TYPE_OPTIONS = [
+  { value: "apartment", label: "شقة" },
+  { value: "villa", label: "فيلا" },
+  { value: "land", label: "أرض" },
+  { value: "commercial", label: "تجاري" },
+  { value: "compound", label: "كمبوند" },
+  { value: "offplan", label: "على الخارطة" },
+  { value: "resort", label: "منتجع" },
+  { value: "building", label: "عمارة" },
+] as const;
+
+export const SAUDI_CITIES = [
+  "الرياض",
+  "جدة",
+  "الدمام",
+  "مكة المكرمة",
+  "المدينة المنورة",
+  "الخبر",
+  "تبوك",
+  "أبها",
+  "القصيم",
+  "حائل",
+] as const;
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 const toFormData = (payload: CreatePropertyPayload): FormData => {
@@ -157,6 +184,36 @@ const toFormData = (payload: CreatePropertyPayload): FormData => {
 /**
  * GET /api/v1/properties/developer/properties
  */
+// export const getDeveloperProperties = async (
+//   params: GetPropertiesParams = {},
+// ): Promise<GetPropertiesResponse> => {
+//   const {
+//     page = 1,
+//     limit = 10,
+//     search,
+//     status,
+//     approvalStatus,
+//     type,
+//     city,
+//   } = params;
+
+//   const response = await api.get<GetPropertiesResponse>(
+//     "/api/v1/properties/developer/properties",
+//     {
+//       params: {
+//         page,
+//         limit,
+//         ...(search && { search }),
+//         ...(status && { status }),
+//         ...(approvalStatus && { approvalStatus }),
+//         ...(type && { type }),
+//         ...(city && { city }),
+//       },
+//     },
+//   );
+
+//   return response.data;
+// };
 export const getDeveloperProperties = async (
   params: GetPropertiesParams = {},
 ): Promise<GetPropertiesResponse> => {
@@ -176,18 +233,19 @@ export const getDeveloperProperties = async (
       params: {
         page,
         limit,
-        ...(search && { search }),
-        ...(status && { status }),
-        ...(approvalStatus && { approvalStatus }),
-        ...(type && { type }),
-        ...(city && { city }),
+        ...(search?.trim() && { search: search.trim() }),
+        ...(status?.trim() && { status: status.trim() }),
+        ...(approvalStatus?.trim() && {
+          approvalStatus: approvalStatus.trim(),
+        }), // ← المهم
+        ...(type?.trim() && { type: type.trim() }),
+        ...(city?.trim() && { city: city.trim() }),
       },
     },
   );
 
   return response.data;
 };
-
 /**
  * GET /api/v1/properties/developer/properties/:id
  */

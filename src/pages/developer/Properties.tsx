@@ -18,7 +18,10 @@ import {
 import Link from "next/link";
 import StatusBadge from "@/components/developer/StatusBadge";
 import ConfirmModal from "@/components/shared/ConfirmModal";
-import { propertyTypes, saudiCities } from "@/lib/mock-data";
+import {
+  PROPERTY_TYPE_OPTIONS as propertyTypes,
+  SAUDI_CITIES as saudiCities,
+} from "@/services/developer/Propertiesservice";
 import { formatPrice } from "@/lib/utils";
 import {
   useGetDeveloperProperties,
@@ -36,10 +39,6 @@ export default function Properties() {
   const [filters, setFilters] = useState<GetPropertiesParams>({
     page: 1,
     limit: 10,
-    search: "",
-    approvalStatus: "",
-    type: "",
-    city: "",
   });
   const [searchInput, setSearchInput] = useState("");
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -67,7 +66,11 @@ export default function Properties() {
     key: keyof GetPropertiesParams,
     value: string,
   ) => {
-    setFilters((prev) => ({ ...prev, [key]: value, page: 1 }));
+    setFilters((prev) => ({
+      ...prev,
+      [key]: value || undefined, // ← "" تبقى undefined مش string فاضية
+      page: 1,
+    }));
   };
 
   const handleDeleteClick = (id: string) => {
@@ -108,28 +111,17 @@ export default function Properties() {
       </div>
 
       {/* Filters */}
-      <div className="bg-white p-4 rounded-2xl shadow-sm border border-[var(--border)] grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="flex items-center gap-3 bg-[var(--bg)] px-4 py-2.5 rounded-xl border border-[var(--border)] focus-within:border-[var(--secondary)] transition-all md:col-span-1">
-          <Search size={18} className="text-[var(--text-muted)]" />
-          <input
-            type="text"
-            placeholder="بحث بالاسم... (Enter للبحث)"
-            className="bg-transparent border-none outline-none text-sm w-full font-medium"
-            value={searchInput}
-            onChange={(e) => setSearchInput(e.target.value)}
-            onKeyDown={handleSearchKeyDown}
-          />
-        </div>
-
+      <div className="bg-white p-4 rounded-2xl shadow-sm border border-[var(--border)] grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Approval Status Filter */}
         <div className="relative">
           <select
             className="w-full h-full bg-[var(--bg)] px-4 py-2.5 rounded-xl border border-[var(--border)] appearance-none text-sm font-bold text-[var(--primary)] outline-none focus:border-[var(--secondary)] transition-all cursor-pointer"
-            value={filters.approvalStatus}
+            value={filters.approvalStatus ?? ""}
             onChange={(e) =>
               handleFilterChange("approvalStatus", e.target.value)
             }
           >
-            <option value="">كل الحالات</option>
+            <option value="">كل حالات الاعتماد</option>
             <option value="approved">منشور (مقبول)</option>
             <option value="pending">قيد المراجعة</option>
             <option value="rejected">مرفوض</option>
@@ -140,37 +132,17 @@ export default function Properties() {
           />
         </div>
 
+        {/* Property Status Filter */}
         <div className="relative">
           <select
             className="w-full h-full bg-[var(--bg)] px-4 py-2.5 rounded-xl border border-[var(--border)] appearance-none text-sm font-bold text-[var(--primary)] outline-none focus:border-[var(--secondary)] transition-all cursor-pointer"
-            value={filters.type}
-            onChange={(e) => handleFilterChange("type", e.target.value)}
+            value={filters.status ?? ""}
+            onChange={(e) => handleFilterChange("status", e.target.value)}
           >
-            <option value="">كل الأنواع</option>
-            {propertyTypes.map((t) => (
-              <option key={t.value} value={t.value}>
-                {t.label}
-              </option>
-            ))}
-          </select>
-          <ChevronDown
-            size={16}
-            className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none text-[var(--text-muted)]"
-          />
-        </div>
-
-        <div className="relative">
-          <select
-            className="w-full h-full bg-[var(--bg)] px-4 py-2.5 rounded-xl border border-[var(--border)] appearance-none text-sm font-bold text-[var(--primary)] outline-none focus:border-[var(--secondary)] transition-all cursor-pointer"
-            value={filters.city}
-            onChange={(e) => handleFilterChange("city", e.target.value)}
-          >
-            <option value="">كل المدن</option>
-            {saudiCities.map((c) => (
-              <option key={c} value={c}>
-                {c}
-              </option>
-            ))}
+            <option value="">كل حالات العقار</option>
+            <option value="available">متاح</option>
+            <option value="reserved">محجوز</option>
+            <option value="sold">مباع</option>
           </select>
           <ChevronDown
             size={16}

@@ -12,6 +12,10 @@ import {
   FileText,
   Phone,
   Building2,
+  Video,
+  Link2,
+  CheckCircle2,
+  XCircle,
 } from "lucide-react";
 import { useGetProperty } from "@/hooks/admin/Useproperties";
 import StatusBadge from "@/components/admin/StatusBadge";
@@ -114,6 +118,21 @@ export default function PropertyDetailsModal({ propertyId, onClose }: Props) {
               </div>
             </div>
 
+            {/* Rejection Reason */}
+            {property.rejectionReason && (
+              <div className="flex items-start gap-2 bg-red-50 border border-red-100 rounded-xl p-4">
+                <XCircle size={16} className="text-red-500 shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-xs font-semibold text-red-600 mb-0.5">
+                    سبب الرفض
+                  </p>
+                  <p className="text-sm text-red-700">
+                    {property.rejectionReason}
+                  </p>
+                </div>
+              </div>
+            )}
+
             {/* Price */}
             <div className="bg-gray-50 rounded-xl p-4 text-center">
               <p className="text-2xl font-black text-[var(--secondary)]">
@@ -142,7 +161,7 @@ export default function PropertyDetailsModal({ propertyId, onClose }: Props) {
                 {
                   icon: <Layers size={18} />,
                   label: "الدور",
-                  value: property.floor,
+                  value: property.floor ?? "—",
                 },
                 {
                   icon: <Eye size={18} />,
@@ -165,6 +184,29 @@ export default function PropertyDetailsModal({ propertyId, onClose }: Props) {
                 </div>
               ))}
             </div>
+
+            {/* Features */}
+            {property.features && property.features.length > 0 && (
+              <div>
+                <p className="text-sm font-semibold text-[var(--text)] mb-2">
+                  المميزات
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {property.features.map((feature: string) => (
+                    <span
+                      key={feature}
+                      className="flex items-center gap-1 text-xs bg-gray-50 border border-gray-100 text-gray-700 px-3 py-1.5 rounded-full"
+                    >
+                      <CheckCircle2
+                        size={12}
+                        className="text-[var(--primary)]"
+                      />
+                      {feature}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Description */}
             {property.description && (
@@ -211,11 +253,59 @@ export default function PropertyDetailsModal({ propertyId, onClose }: Props) {
             </div>
 
             {/* Project */}
-            <div className="border border-gray-100 rounded-xl p-4">
-              <p className="text-xs text-gray-500 mb-1">المشروع</p>
-              <p className="font-bold text-sm">{property.project.name}</p>
-              <p className="text-xs text-gray-500">{property.project.city}</p>
-            </div>
+            {property.project && (
+              <div className="border border-gray-100 rounded-xl p-4">
+                <p className="text-xs text-gray-500 mb-1">المشروع</p>
+                <p className="font-bold text-sm">{property.project.name}</p>
+                <p className="text-xs text-gray-500">{property.project.city}</p>
+              </div>
+            )}
+
+            {/* Video File */}
+            {property.videoUrl && (
+              <div>
+                <p className="text-sm font-semibold text-[var(--text)] mb-2">
+                  فيديو العقار
+                </p>
+                <video
+                  src={property.videoUrl}
+                  controls
+                  className="w-full rounded-xl border border-gray-100 max-h-60"
+                />
+              </div>
+            )}
+
+            {/* Video Links */}
+            {property.videoLinks && property.videoLinks.length > 0 && (
+              <div>
+                <p className="text-sm font-semibold text-[var(--text)] mb-2">
+                  روابط الفيديو
+                </p>
+                <div className="space-y-2">
+                  {property.videoLinks.map((link: string, index: number) => (
+                    <a
+                      key={index}
+                      href={link.trim()}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="flex items-center gap-3 p-3 border border-gray-100 rounded-xl hover:bg-gray-50 transition-colors"
+                    >
+                      <Video
+                        size={18}
+                        className="text-[var(--primary)] shrink-0"
+                      />
+                      <span
+                        className="text-sm text-blue-600 truncate flex-1"
+                        dir="ltr"
+                      >
+                        {link.trim()}
+                      </span>
+                      <Link2 size={14} className="text-gray-400 shrink-0" />
+                    </a>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Files */}
             {property.files.length > 0 && (
@@ -224,25 +314,33 @@ export default function PropertyDetailsModal({ propertyId, onClose }: Props) {
                   المستندات
                 </p>
                 <div className="space-y-2">
-                  {property.files.map((file) => (
-                    <a
-                      key={file.url}
-                      href={file.url}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="flex items-center gap-3 p-3 border border-gray-100 rounded-xl hover:bg-gray-50 transition-colors"
-                    >
-                      <FileText size={18} className="text-red-500 shrink-0" />
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium truncate">
-                          {file.name}
-                        </p>
-                        <p className="text-xs text-gray-400">
-                          {(file.size / 1024).toFixed(1)} KB
-                        </p>
-                      </div>
-                    </a>
-                  ))}
+                  {property.files.map(
+                    (file: { url: string; name: string; size: number }) => (
+                      <button
+                        key={file.url}
+                        type="button"
+                        onClick={() => {
+                          const viewerUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(file.url)}&embedded=false`;
+                          window.open(
+                            viewerUrl,
+                            "_blank",
+                            "noopener,noreferrer",
+                          );
+                        }}
+                        className="flex items-center gap-3 p-3 border border-gray-100 rounded-xl hover:bg-gray-50 transition-colors w-full text-right"
+                      >
+                        <FileText size={18} className="text-red-500 shrink-0" />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium truncate">
+                            {file.name}
+                          </p>
+                          <p className="text-xs text-gray-400">
+                            {(file.size / 1024).toFixed(1)} KB
+                          </p>
+                        </div>
+                      </button>
+                    ),
+                  )}
                 </div>
               </div>
             )}

@@ -117,9 +117,9 @@ export default function Projects() {
           >
             {/* Image */}
             <div className="relative h-56 overflow-hidden">
-              {project.images[0] ? (
+              {project.logoUrl || project.images[0] ? (
                 <Image
-                  src={project.images[0]}
+                  src={project.logoUrl || project.images[0]}
                   alt={project.name}
                   fill
                   className="object-cover group-hover:scale-110 transition-transform duration-700"

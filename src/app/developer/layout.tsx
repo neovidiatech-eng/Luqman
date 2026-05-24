@@ -1,5 +1,6 @@
 "use client";
-import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
 import DeveloperSidebar from "@/components/developer/DeveloperSidebar";
 import DeveloperHeader from "@/components/developer/DeveloperHeader";
 
@@ -9,9 +10,30 @@ export default function DeveloperLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const router = useRouter();
+  const [checked, setChecked] = useState(false);
 
   const isAuthPage =
     pathname === "/login" || pathname === "/developer/register";
+
+  useEffect(() => {
+    if (isAuthPage) {
+      setChecked(true);
+      return;
+    }
+
+    const token = localStorage.getItem("token");
+    const role = localStorage.getItem("role");
+
+    if (!token || role !== "developer") {
+      router.replace("/login");
+    } else {
+      setChecked(true);
+    }
+  }, [router, isAuthPage]);
+
+  if (!checked) return null;
+
   if (isAuthPage) {
     return <>{children}</>;
   }

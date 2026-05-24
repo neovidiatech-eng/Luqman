@@ -14,6 +14,8 @@ import {
   BedDouble,
   Bath,
   Maximize2,
+  Shield,
+  ExternalLink,
 } from "lucide-react";
 import StatusBadge from "@/components/admin/StatusBadge";
 import DataTable from "@/components/admin/DataTable";
@@ -339,6 +341,44 @@ export default function DeveloperProfile({ id }: { id: string }) {
                       </p>
                     </div>
                   </div>
+
+                  {/* ─── Commercial Reg File ─── */}
+                  {developer?.commercialRegFile && (
+                    <div className="flex items-center gap-3 pt-1 border-t border-gray-100 mt-1">
+                      <Shield size={17} className="text-gray-400 shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-gray-400 text-xs mb-1.5">
+                          السجل التجاري
+                        </p>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const viewerUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(developer.commercialRegFile!)}&embedded=false`;
+                            window.open(
+                              viewerUrl,
+                              "_blank",
+                              "noopener,noreferrer",
+                            );
+                          }}
+                          className="flex items-center gap-2 bg-gray-50 hover:bg-gray-100 transition-colors px-3 py-2 rounded-lg group w-full text-right border border-gray-100"
+                        >
+                          <div className="w-7 h-7 bg-white rounded-lg flex items-center justify-center shrink-0 border border-gray-100">
+                            <Shield
+                              size={14}
+                              className="text-[var(--primary)]"
+                            />
+                          </div>
+                          <span className="text-xs font-semibold flex-1 truncate text-[var(--text)]">
+                            عرض الملف
+                          </span>
+                          <ExternalLink
+                            size={13}
+                            className="text-gray-400 group-hover:text-[var(--primary)] transition-colors shrink-0"
+                          />
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </>
               )}
             </div>

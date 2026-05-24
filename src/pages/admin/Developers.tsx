@@ -1,12 +1,11 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Search, Trash2, Eye, ToggleLeft, ToggleRight } from "lucide-react";
 import DataTable from "@/components/admin/DataTable";
 import StatusBadge from "@/components/admin/StatusBadge";
 import ConfirmModal from "@/components/shared/ConfirmModal";
-import { showToast } from "@/components/shared/Toast";
 import {
   useDeleteDeveloper,
   useGetDevelopers,
@@ -18,9 +17,11 @@ const PLACEHOLDER_LOGO = "/images/placeholder-company.png";
 
 export default function Developers() {
   const [page, setPage] = useState(1);
-  const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [searchInput, setSearchInput] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
+
   const [itemToDelete, setItemToDelete] = useState<string | null>(null);
   const { mutate: deleteDeveloper, isPending: isDeleting } =
     useDeleteDeveloper();
@@ -49,6 +50,13 @@ export default function Developers() {
     setItemToDelete(id);
     setDeleteModalOpen(true);
   };
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setSearchTerm(searchInput);
+      setPage(1);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [searchInput]);
 
   const columns = [
     {
@@ -176,11 +184,8 @@ export default function Developers() {
             <input
               type="text"
               placeholder="بحث باسم الشركة، البريد..."
-              value={searchTerm}
-              onChange={(e) => {
-                setSearchTerm(e.target.value);
-                setPage(1);
-              }}
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
               className="w-full bg-white border border-gray-200 rounded-lg py-2 pr-10 pl-4 text-sm focus:outline-none focus:border-[var(--primary)]"
             />
           </div>

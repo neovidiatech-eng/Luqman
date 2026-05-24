@@ -20,6 +20,7 @@ import {
 import { formatPrice } from "@/lib/utils";
 import { Property } from "@/services/developer/Propertiesservice";
 import { propertyTypes } from "@/lib/mock-data";
+import { useGetDeveloperProjects } from "@/hooks/deveoper/Useprojects";
 
 // ─── Label Maps ───────────────────────────────────────────────────────────────
 
@@ -65,7 +66,10 @@ export function ViewPropertyModal({
   const typeLabel =
     propertyTypes.find((t) => t.value === property.type)?.label ??
     property.type;
-
+  const { data: projectsData } = useGetDeveloperProjects({ limit: 100 });
+  const projectName = projectsData?.data?.projects.find(
+    (p) => p.id === property.projectId,
+  )?.name;
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
@@ -188,7 +192,19 @@ export function ViewPropertyModal({
               </p>
             </div>
           </div>
-
+          {property.projectId && (
+            <div className="flex items-center gap-2 p-3 bg-[var(--bg)] rounded-2xl border border-[var(--border)]">
+              <Building2 size={15} className="text-[var(--primary)]" />
+              <div>
+                <p className="text-[10px] font-black text-[var(--text-muted)]">
+                  تابع لمشروع
+                </p>
+                <p className="text-sm font-bold text-[var(--primary)]">
+                  {projectName ?? "..."}
+                </p>
+              </div>
+            </div>
+          )}
           {/* Stats Grid */}
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
             {[

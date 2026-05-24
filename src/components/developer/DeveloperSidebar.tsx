@@ -1,6 +1,7 @@
 "use client";
 import React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter, usePathname } from "next/navigation";
 import {
   LayoutDashboard,
@@ -20,6 +21,10 @@ export default function DeveloperSidebar() {
   const unreadCount = notifications?.filter((n) => !n.isRead).length ?? 0;
 
   const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("role");
+    sessionStorage.removeItem("token");
+    sessionStorage.removeItem("role");
     router.push("/login");
   };
 
@@ -55,7 +60,10 @@ export default function DeveloperSidebar() {
   return (
     <aside className="fixed top-0 right-0 h-screen w-[260px] bg-[var(--sidebar-bg)] flex flex-col z-50 text-white border-l border-white/10">
       {/* Brand */}
-      <div className="p-8 border-b border-white/10">
+      <div className="p-8 border-b border-white/10 flex items-center gap-3">
+        <div className="relative w-10 h-10 shrink-0">
+          <Image src="/logo.jpeg" alt="لقمان" fill className="rounded-full object-cover shadow-sm border border-white/10" />
+        </div>
         <h1 className="text-2xl font-bold text-[var(--secondary)] mb-1">
           لقمان
         </h1>

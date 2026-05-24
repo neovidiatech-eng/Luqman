@@ -6,9 +6,9 @@ import DataTable from "@/components/admin/DataTable";
 import StatusBadge from "@/components/admin/StatusBadge";
 import ConfirmModal from "@/components/shared/ConfirmModal";
 import { formatDate } from "@/lib/utils";
-import { PreviewModal } from "@/components/blog/PreviewModal";
-import { EditModal } from "@/components/blog/EditModal";
-import { AddModal } from "@/components/blog/Addmodal";
+import { PreviewModal } from "@/components/admin/blog/PreviewModal";
+import { EditModal } from "@/components/admin/blog/EditModal";
+import { AddModal } from "@/components/admin/blog/Addmodal";
 import { BlogPost } from "@/services/admin/Blogservice";
 import {
   useDeleteBlogPost,

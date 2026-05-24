@@ -21,7 +21,7 @@ export interface Property {
   area: number;
   bedrooms: number;
   bathrooms: number;
-  floor: number;
+  floor: number | null;
   city: string;
   district: string;
   address: string;
@@ -29,6 +29,7 @@ export interface Property {
   lng: number | null;
   images: string[];
   videoUrl: string | null;
+  videoLinks: string[];
   files: PropertyFile[];
   features: string[];
   isFeatured: boolean;
@@ -36,7 +37,7 @@ export interface Property {
   createdAt: string;
   updatedAt: string;
   developerId: string;
-  projectId: string;
+  projectId: string | null;
   developer: {
     companyName: string;
   };
@@ -45,14 +46,14 @@ export interface Property {
 export interface PropertyDetails extends Property {
   developer: {
     companyName: string;
-    logoUrl: string;
+    logoUrl: string | null;
     phone: string;
   };
   project: {
     id: string;
     name: string;
     city: string;
-  };
+  } | null;
 }
 
 export interface PropertiesPagination {
@@ -69,6 +70,7 @@ export interface GetPropertiesParams {
   limit?: number;
   search?: string;
   status?: string;
+  approvalStatus?: string;
   type?: string;
 }
 
@@ -94,7 +96,7 @@ export interface GetPropertyResponse {
 export const getProperties = async (
   params: GetPropertiesParams = {},
 ): Promise<GetPropertiesResponse> => {
-  const { page = 1, limit = 10, search, status, type } = params;
+  const { page = 1, limit = 10, search, status, approvalStatus, type } = params;
 
   const response = await api.get<GetPropertiesResponse>(
     "/api/v1/admin/properties",
@@ -104,6 +106,7 @@ export const getProperties = async (
         limit,
         ...(search && { search }),
         ...(status && { status }),
+        ...(approvalStatus && { approvalStatus }),
         ...(type && { type }),
       },
     },

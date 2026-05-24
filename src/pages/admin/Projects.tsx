@@ -201,13 +201,6 @@ export default function Projects() {
             <option value="completed">مكتمل</option>
           </select>
         </div>
-        <Link
-          href="/admin/projects/add"
-          className="flex items-center gap-2 bg-[var(--primary)] text-white px-4 py-2 rounded-lg text-sm font-bold hover:opacity-90 transition-opacity shrink-0"
-        >
-          <Plus size={18} />
-          إضافة مشروع
-        </Link>
       </div>
 
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">

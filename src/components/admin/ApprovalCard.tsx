@@ -24,19 +24,22 @@ export default function ApprovalCard({ item, type }: ApprovalCardProps) {
   const price = type === "property" ? item.price : item.startingPrice;
   const companyName = item.developer?.companyName ?? "";
 
-  const { mutate: approveProperty, isPending: isApprovingProperty } =
+  const { mutate: approveProperty, isPending: isApprovingProperty, variables: approvingPropertyId } =
     useApproveProperty();
-  const { mutate: rejectProperty, isPending: isRejectingProperty } =
+  const { mutate: rejectProperty, isPending: isRejectingProperty, variables: rejectingPropertyPayload } =
     useRejectProperty();
-  const { mutate: approveProject, isPending: isApprovingProject } =
+  const { mutate: approveProject, isPending: isApprovingProject, variables: approvingProjectId } =
     useApproveProject();
-  const { mutate: rejectProject, isPending: isRejectingProject } =
+  const { mutate: rejectProject, isPending: isRejectingProject, variables: rejectingProjectPayload } =
     useRejectProject();
 
-  const isApproving =
-    type === "property" ? isApprovingProperty : isApprovingProject;
-  const isRejecting =
-    type === "property" ? isRejectingProperty : isRejectingProject;
+  const isApproving = type === "property"
+    ? isApprovingProperty && approvingPropertyId === item.id
+    : isApprovingProject && approvingProjectId === item.id;
+
+  const isRejecting = type === "property"
+    ? isRejectingProperty && rejectingPropertyPayload?.id === item.id
+    : isRejectingProject && rejectingProjectPayload?.id === item.id;
 
   const handleApprove = () => {
     if (type === "property") approveProperty(item.id);

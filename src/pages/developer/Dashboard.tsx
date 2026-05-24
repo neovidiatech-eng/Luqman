@@ -207,6 +207,7 @@ import { useDeveloperDashboard } from "@/hooks/deveoper/Usedeveloperdashboard";
 import { useGetDeveloperProperties } from "@/hooks/deveoper/Useproperties";
 import { formatPrice, timeAgo } from "@/lib/utils";
 import StatusBadge from "@/components/developer/StatusBadge";
+import Link from "next/link";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -614,9 +615,12 @@ export default function Dashboard() {
             <h3 className="text-lg font-black uppercase tracking-tight text-primary">
               أحدث العقارات
             </h3>
-            <button className="text-[10px] font-bold text-secondary hover:underline uppercase tracking-widest">
+            <Link
+              href={"/developer/properties"}
+              className="text-[10px] font-bold text-secondary hover:underline uppercase tracking-widest"
+            >
               عرض الكل
-            </button>
+            </Link>
           </div>
 
           {propertiesLoading ? (

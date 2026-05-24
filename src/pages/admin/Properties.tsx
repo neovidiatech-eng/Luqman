@@ -5,7 +5,6 @@ import { Search, Trash2, Eye, Star } from "lucide-react";
 import DataTable from "@/components/admin/DataTable";
 import StatusBadge from "@/components/admin/StatusBadge";
 import ConfirmModal from "@/components/shared/ConfirmModal";
-import { showToast } from "@/components/shared/Toast";
 import {
   useDeleteProperty,
   useFeatureProperty,
@@ -35,6 +34,7 @@ export default function Properties() {
   const [page, setPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [approvalStatusFilter, setApprovalStatusFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("all");
   const { mutate: toggleFeature, isPending: isToggling } = useFeatureProperty();
   const { mutate: updateStatus, isPending: isUpdatingStatus } =
@@ -59,6 +59,7 @@ export default function Properties() {
     limit: 10,
     search: searchTerm || undefined,
     status: statusFilter !== "all" ? statusFilter : undefined,
+    approvalStatus: approvalStatusFilter !== "all" ? approvalStatusFilter : undefined,
     type: typeFilter !== "all" ? typeFilter : undefined,
   });
 
@@ -251,14 +252,25 @@ export default function Properties() {
               setStatusFilter(e.target.value);
               setPage(1);
             }}
-            className="bg-white border border-gray-200 rounded-lg py-2 px-4 text-sm focus:outline-none focus:border-[var(--primary)] sm:w-40"
+            className="bg-white border border-gray-200 rounded-lg py-2 px-4 text-sm focus:outline-none focus:border-[var(--primary)] sm:w-36"
           >
-            <option value="all">كل الحالات</option>
+            <option value="all">حالة العقار</option>
             <option value="available">متاح</option>
             <option value="reserved">محجوز</option>
             <option value="sold">مباع</option>
+          </select>
+          <select
+            value={approvalStatusFilter}
+            onChange={(e) => {
+              setApprovalStatusFilter(e.target.value);
+              setPage(1);
+            }}
+            className="bg-white border border-gray-200 rounded-lg py-2 px-4 text-sm focus:outline-none focus:border-[var(--primary)] sm:w-36"
+          >
+            <option value="all">حالة الاعتماد</option>
             <option value="pending">قيد المراجعة</option>
-            <option value="approved">معتمد</option>
+            <option value="approved">منشور (مقبول)</option>
+            <option value="rejected">مرفوض</option>
           </select>
           <select
             value={typeFilter}
@@ -266,7 +278,7 @@ export default function Properties() {
               setTypeFilter(e.target.value);
               setPage(1);
             }}
-            className="bg-white border border-gray-200 rounded-lg py-2 px-4 text-sm focus:outline-none focus:border-[var(--primary)] sm:w-40"
+            className="bg-white border border-gray-200 rounded-lg py-2 px-4 text-sm focus:outline-none focus:border-[var(--primary)] sm:w-36"
           >
             <option value="all">كل الأنواع</option>
             {Object.entries(TYPE_MAP).map(([value, label]) => (

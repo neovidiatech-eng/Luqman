@@ -6,6 +6,7 @@ import { ArrowRight, Save } from "lucide-react";
 import ImageUploader from "@/components/shared/ImageUploader";
 import { propertyTypes, saudiCities, propertyFeatures } from "@/lib/mock-data";
 import { useCreateDeveloperProperty } from "@/hooks/deveoper/Useproperties";
+import { useGetDeveloperProjects } from "@/hooks/deveoper/Useprojects";
 import {
   CreatePropertyPayload,
   PropertyType,
@@ -15,6 +16,8 @@ import {
 export default function AddProperty() {
   const router = useRouter();
   const { mutate: createProperty, isPending } = useCreateDeveloperProperty();
+  const { data: projectsData } = useGetDeveloperProjects({ limit: 100 });
+  const projects = projectsData?.data?.projects ?? [];
 
   const [images, setImages] = useState<File[]>([]);
   const [selectedFeatures, setSelectedFeatures] = useState<string[]>([]);
@@ -31,6 +34,7 @@ export default function AddProperty() {
     city: "",
     district: "",
     address: "",
+    projectId: "",
   });
 
   const handleChange = (
@@ -76,6 +80,7 @@ export default function AddProperty() {
       features: selectedFeatures,
       videoLinks: videoLinks.filter((l) => l.trim() !== ""),
       images: images.length > 0 ? images : undefined,
+      projectId: formData.projectId || undefined, // ← جديد
     };
 
     createProperty(payload, {
@@ -192,6 +197,24 @@ export default function AddProperty() {
                   placeholder="0"
                 />
               </div>
+            </div>
+            <div className="col-span-full">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                تابع لمشروع؟ <span className="text-gray-400">(اختياري)</span>
+              </label>
+              <select
+                name="projectId"
+                value={formData.projectId}
+                onChange={handleChange}
+                className="w-full border border-gray-300 rounded-lg p-2.5 text-sm focus:outline-none focus:border-[var(--primary)] focus:ring-1 focus:ring-[var(--primary)]"
+              >
+                <option value="">— بدون مشروع —</option>
+                {projects.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.name}
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
         </div>

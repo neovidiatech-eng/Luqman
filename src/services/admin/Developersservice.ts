@@ -13,7 +13,18 @@ export interface Developer {
   createdAt: string;
   updatedAt: string;
 }
-
+export interface DeveloperProfileData {
+  id: string;
+  companyName: string;
+  logoUrl: string | null;
+  phone: string;
+  createdAt: string;
+  commercialRegFile: string | null; // ← أضف دا
+  _count: {
+    properties: number;
+    projects: number;
+  };
+}
 export interface DevelopersPagination {
   total: number;
   page: number;
